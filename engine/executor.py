@@ -1104,3 +1104,119 @@ def sync(dry_run: bool = True) -> dict:
     """
     from .sync import sync as _sync
     return _sync(dry_run=True)  # sync is always read-only from this API
+
+
+# ── Phase 7: Batch Operational Status ─────────────────────────────────────
+
+
+def get_batch_status(request_ids: list[str]) -> list[dict]:
+    """Get the status of a batch of execution requests.
+
+    This is a read-only query over execution-request files.
+    It does NOT modify any request or trigger any execution.
+
+    Returns a list of status dicts, one per request, with:
+      - request_id, status, operation, provider_id, identity_id,
+        policy_status, approved, created_at, workflow_result_status
+    """
+    statuses = []
+    for rid in request_ids:
+        s = registration_status(rid)
+        statuses.append(s)
+    return statuses
+
+
+def summarize_batch(request_ids: list[str]) -> dict:
+    """Produce a summary of operational state for a batch of requests.
+
+    Groups requests by status and counts them.  Read-only — does not
+    modify any request files.
+
+    Returns a dict with:
+      - batch_id: deterministic from the sorted request_ids
+      - total: number of requests in the batch
+      - by_status: {status: count}
+      - by_provider: {provider_id: count}
+      - awaiting_approval: requests still in awaiting_approval
+      - ready_to_execute: approved requests that passed preflight
+      - blocked: requests blocked by hard failures
+      - completed: successfully completed registrations
+      - partial: requests paused at human checkpoints
+      - failed: requests that failed execution
+      - cancelled: requests cancelled by user
+      - created_at: timestamp of the most recent request creation
+    """
+    import hashlib
+    statuses = get_batch_status(request_ids)
+
+    by_status: dict[str, int] = {}
+    by_provider: dict[str, int] = {}
+    awaiting_approval = []
+    ready_to_execute = []
+    blocked = []
+    completed = []
+    partial = []
+    failed = []
+    cancelled = []
+    not_found = []
+
+    created_times = []
+
+    for s in statuses:
+        rid = s.get("request_id", "")
+        status = s.get("status", "not_found")
+        provider = s.get("provider_id", "unknown")
+
+        by_status[status] = by_status.get(status, 0) + 1
+        by_provider[provider] = by_provider.get(provider, 0) + 1
+
+        if status == "not_found":
+            not_found.append(rid)
+        elif status == "awaiting_approval":
+            awaiting_approval.append(rid)
+        elif status in ("approved", "preparing") and s.get("approved"):
+            ready_to_execute.append(rid)
+        elif status == "blocked":
+            blocked.append(rid)
+        elif status == "completed":
+            wf_status = s.get("workflow_result_status")
+            if wf_status == "dry_run":
+                # Dry-run completed — not a real registration
+                ready_to_execute.append(rid)
+            else:
+                completed.append(rid)
+        elif status == "partial":
+            partial.append(rid)
+        elif status == "failed":
+            failed.append(rid)
+        elif status == "cancelled":
+            cancelled.append(rid)
+        else:
+            # created, validated, executing, verifying, or any other status
+            # These are operational states not yet classified into buckets
+            by_status.setdefault("_uncategorized", 0)
+            by_status["_uncategorized"] += 1
+
+        if s.get("created_at"):
+            created_times.append(s["created_at"])
+
+    # Deterministic batch ID from sorted request IDs
+    batch_id = hashlib.sha256(
+        ";".join(sorted(request_ids)).encode()
+    ).hexdigest()[:16]
+
+    return {
+        "batch_id": batch_id,
+        "total": len(request_ids),
+        "by_status": by_status,
+        "by_provider": by_provider,
+        "awaiting_approval": awaiting_approval,
+        "ready_to_execute": ready_to_execute,
+        "blocked": blocked,
+        "completed": completed,
+        "partial": partial,
+        "failed": failed,
+        "cancelled": cancelled,
+        "not_found": not_found,
+        "created_at": max(created_times) if created_times else None,
+    }

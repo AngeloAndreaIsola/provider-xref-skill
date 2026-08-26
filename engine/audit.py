@@ -952,3 +952,151 @@ def audit_text() -> str:
     lines.append("Ambiguous matches are REQUIRES_REVIEW.")
 
     return "\n".join(lines)
+
+
+# ── Phase 7: Operational Recommendations ────────────────────────────────────
+
+
+def _classify_priority(score: int, policy_status: str, can_automate: bool) -> str:
+    """Classify an opportunity's operational priority tier.
+
+    Priority tiers are purely advisory — they help Hermes surface
+    what to show the user first. They do NOT replace the execution gate.
+    """
+    if policy_status == "disallowed":
+        return "none"
+    if policy_status == "allowed" and can_automate:
+        if score >= 70:
+            return "high"
+        if score >= 40:
+            return "medium"
+        return "low"
+    # unknown / requires_review — user must review before automation
+    if score >= 70:
+        return "high"
+    if score >= 40:
+        return "medium"
+    return "low"
+
+
+def _next_action(opportunity: dict) -> str:
+    """Determine the recommended next action for an opportunity.
+
+    Purely informational — does NOT trigger any execution.
+    """
+    ps = opportunity.get("policy_status", "unknown")
+    can_auto = opportunity.get("can_automate", False)
+
+    if ps == "disallowed":
+        return "do_not_register"
+    if ps == "unknown" and not can_auto:
+        return "review_policy"
+    if opportunity.get("identity_blocker"):
+        return "provide_identity"
+    if opportunity.get("missing_identities"):
+        return "provide_identity"
+    if ps in ("allowed", "requires_review") and opportunity.get("requirements"):
+        missing = opportunity.get("missing_identities", [])
+        if missing:
+            return "provide_identity"
+    if can_auto and ps == "allowed":
+        return "plan_registration"
+    # requires_review or unknown but has identity
+    return "review_and_approve"
+
+
+def _tier_label(tier: str) -> str:
+    """Human-readable priority tier label."""
+    return {
+        "high": "High priority — ready to register",
+        "medium": "Medium priority — review before registering",
+        "low": "Low priority — informational",
+        "none": "Not recommended — policy disallowed",
+    }.get(tier, "Unknown")
+
+
+def recommendations(
+    state: dict | None = None,
+    catalog: dict | None = None,
+) -> list[dict]:
+    """Produce a prioritized, actionable list of recommendations.
+
+    Combines find_opportunities() with policy classification and
+    scoring to surface what Hermes should present to the user as
+    "what should I do next?".
+
+    Each recommendation includes:
+      - provider, name, auth_type, identity, identity_label
+      - score (0–100), confidence (0.0–1.0)
+      - policy_status, can_automate
+      - priority_tier: high | medium | low | none
+      - next_action: plan_registration | review_policy | provide_identity |
+                     review_and_approve | do_not_register
+      - downstream_count: how many providers cascade from this one
+      - free_quota, signup_difficulty, verification_requirements
+      - omniroute_support: whether the provider has OmniRoute connectivity
+
+    This function is read-only — it does not create execution requests,
+    modify state, or trigger any external actions.
+    """
+    if state is None:
+        state = load_state()
+    if catalog is None:
+        catalog = load_catalog()
+
+    # Lazy import to avoid circular dependency (planner imports from audit)
+    from .planner import find_opportunities
+    opportunities = find_opportunities(state, catalog)
+
+    recs: list[dict] = []
+    for opp in opportunities:
+        # find_opportunities already skips disallowed providers
+        ps = opp.get("policy_status", "unknown")
+        can_auto = opp.get("can_automate", False)
+        score = opp.get("value", 0)
+
+        tier = _classify_priority(score, ps, can_auto)
+        if tier == "none":
+            # Should not happen since find_opportunities skips disallowed,
+            # but guard anyway
+            continue
+
+        action = _next_action(opp)
+
+        recs.append({
+            "provider": opp["provider"],
+            "name": opp["name"],
+            "auth_type": opp["auth_type"],
+            "identity": opp.get("identity"),
+            "identity_label": opp.get("identity_label"),
+            "score": score,
+            "confidence": round(opp.get("confidence", 0.0), 4),
+            "policy_status": ps,
+            "can_automate": can_auto,
+            "priority_tier": tier,
+            "priority_label": _tier_label(tier),
+            "next_action": action,
+            "downstream_count": opp.get("downstream_count", 0),
+            "free_quota": opp.get("free_quota", "Unknown"),
+            "signup_difficulty": opp.get("signup_difficulty", "unknown"),
+            "verification_requirements": opp.get("verification_requirements", []),
+            "omniroute_support": opp.get("omniroute_support", False),
+        })
+
+    # Sort by priority tier first (high > medium > low), then by score
+    tier_order = {"high": 0, "medium": 1, "low": 2}
+    recs.sort(key=lambda r: (tier_order.get(r["priority_tier"], 99), -r["score"]))
+
+    return recs
+
+
+def recommend_next(state: dict | None = None, catalog: dict | None = None) -> dict | None:
+    """Return the single highest-priority recommendation, or None.
+
+    This is the primary entry point for Hermes to answer:
+    "What should I do next?"
+
+    Returns None if there are no actionable recommendations.
+    """
+    recs = recommendations(state, catalog)
+    return recs[0] if recs else None

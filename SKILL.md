@@ -875,4 +875,182 @@ Workflows **never** attempt to bypass anti-abuse systems. When a checkpoint is e
 | "Register everything." | `find_opportunities()` → present bounded plan → request explicit approval per item | No — approval required per item |
 | "Use whichever account is best." | `find_opportunities()` selects by deterministic scoring | No — approval required for execution |
 | "What accounts do I have?" | `audit()` / `reconcile_real_state()` | No — read-only |
-| "Verify my connections." | `verify_provider()` via GET | No — read-only |
+|| "Verify my connections." | `verify_provider()` via GET | No — read-only |
+
+---
+
+## 17. Phase 7: Operational UX, Orchestration & Automation Foundation
+
+Phase 7 turns the existing safe execution engine into a usable operational system for managing provider opportunities. The goal is to establish the smallest solid foundation for:
+
+- **Discovering opportunities** — ranking providers by value, policy, and identity availability
+- **Prioritizing them** — priority tiers (high/medium/low) based on score and automation eligibility
+- **Showing the user what Hermes recommends** — a `recommendations()` layer with next-action guidance
+- **Generating safe execution plans** — batch creation of execution requests (no approval)
+- **Running approved work through the existing execution gate** — unchanged from Phase 5/6
+- **Handling checkpoints and partial completion** — unchanged from Phase 5/6 (resume, partial status)
+- **Maintaining useful operational history** — unified batch status across execution requests
+- **Supporting orchestration of multiple independent tasks** — batch planning, status, and summary
+
+Phase 7 is read-only by default. It creates execution requests in `awaiting_approval` status but **never** approves or executes them. All Phase 6 safety guarantees are preserved.
+
+### 17.1 Recommendations Layer
+
+`engine/audit.py` provides two new entry points:
+
+```python
+from engine.audit import recommendations, recommend_next
+
+# Get all opportunities with priority tiers and next-action guidance
+recs = recommendations()
+
+# Get just the single highest-priority recommendation
+next = recommend_next()
+```
+
+Each recommendation includes:
+
+| Field | Type | Description |
+|---|---|---|
+| `provider` | str | Provider ID |
+| `name` | str | Human-readable provider name |
+| `auth_type` | str | `api_key` or `oauth` |
+| `score` | int (0–100) | Deterministic opportunity score |
+| `confidence` | float (0.0–1.0) | Confidence in the score |
+| `policy_status` | str | `allowed`, `unknown`, `requires_review`, `disallowed` |
+| `can_automate` | bool | Whether policy allows automation |
+| `priority_tier` | str | `high`, `medium`, `low` |
+| `priority_label` | str | Human-readable tier description |
+| `next_action` | str | `plan_registration`, `review_policy`, `provide_identity`, `review_and_approve`, `do_not_register` |
+| `downstream_count` | int | How many providers cascade from this one |
+| `free_quota` | str | Free tier description |
+| `signup_difficulty` | str | `easy`, `moderate`, `hard` |
+| `verification_requirements` | list[str] | Identity types needed for verification |
+| `omniroute_support` | bool | Whether OmniRoute supports this provider |
+
+**Priority tiers** are purely advisory — they help Hermes surface what to show the user first but do NOT replace the execution gate:
+
+- `high` — score ≥ 70, ready to register or review
+- `medium` — score ≥ 40, review before registering
+- `low` — score < 40, informational
+- `none` — policy disallowed
+
+**Next-action guidance** tells Hermes what the user needs to do:
+
+- `plan_registration` — ALLOW + automatable + identity available → create execution request
+- `review_policy` — UNKNOWN policy, no automation → user must review
+- `provide_identity` — required identity not in state → user must provide
+- `review_and_approve` — REQUIRES_REVIEW or UNKNOWN with explicit approval path
+- `do_not_register` — policy disallowed → never suggest registration
+
+### 17.2 Batch Planning
+
+`engine/planner.py` provides `plan_recommended_batch()` — a thin composition over the existing `create_execution_request()` system:
+
+```python
+from engine.audit import recommendations
+from engine.planner import plan_recommended_batch
+
+# Get recommendations
+recs = recommendations()
+
+# Create execution requests for each (but do NOT approve or execute)
+batch = plan_recommended_batch(recs)
+print(f"Created {batch['total_created']} requests, skipped {batch['total_skipped']}")
+```
+
+Batch result:
+
+| Field | Description |
+|---|---|
+| `batch_id` | Unique identifier for this batch |
+| `created` | List of `{request_id, provider, status, policy_status, can_automate}` |
+| `skipped` | List of `{provider, reason}` — e.g. already connected |
+| `errors` | List of `{provider, error}` — for requests that couldn't be created |
+| `total_requested` | Number of recommendations passed in |
+| `total_created` | Number of execution requests created |
+| `total_skipped` | Number skipped (already connected) |
+| `total_errors` | Number that errored |
+| `status` | Always `"planned"` — never `"approved"` or `"executing"` |
+| `created_at` | ISO timestamp |
+
+**Key invariant**: `plan_recommended_batch()` creates execution requests in `awaiting_approval` status only. It never calls `approve()` or `execute()`. The user must review and approve individual requests before any real work happens.
+
+### 17.3 Batch Operational Status
+
+`engine/executor.py` provides `get_batch_status()` and `summarize_batch()` — read-only queries over execution-request files:
+
+```python
+from engine.executor import get_batch_status, summarize_batch
+
+# Get detailed status for each request in a batch
+statuses = get_batch_status(request_ids)
+
+# Get an aggregated operational summary
+summary = summarize_batch(request_ids)
+print(f"Awaiting approval: {len(summary['awaiting_approval'])}")
+print(f"Ready to execute: {len(summary['ready_to_execute'])}")
+print(f"Blocked: {len(summary['blocked'])}")
+```
+
+**Summarize batch output:**
+
+| Field | Description |
+|---|---|
+| `batch_id` | Deterministic ID from sorted request IDs (sha256[:16]) |
+| `total` | Number of requests in the batch |
+| `by_status` | `{status: count}` across all execution states |
+| `by_provider` | `{provider_id: count}` |
+| `awaiting_approval` | List of request IDs still awaiting approval |
+| `ready_to_execute` | List of approved, preflight-passing request IDs |
+| `blocked` | List of blocked request IDs |
+| `completed` | List of successfully completed request IDs |
+| `partial` | List of request IDs paused at human checkpoints |
+| `failed` | List of failed request IDs |
+| `cancelled` | List of cancelled request IDs |
+| `not_found` | List of request IDs that don't exist |
+| `created_at` | Timestamp of the most recent request creation |
+
+Both functions are pure read — they do not modify any request files or trigger execution.
+
+### 17.4 Operational Command Mapping
+
+| User Says | Hermes Action | Mutates? |
+|---|---|---|
+| "What should I do next?" | `recommend_next()` → present single recommendation | No — read-only |
+| "Show me all opportunities." | `recommendations()` → present prioritized list | No — read-only |
+| "Plan registrations for my top 3." | `plan_recommended_batch(top_3_recs)` → create execution requests | No — requests stay in `awaiting_approval` |
+| "What's the status of my batch?" | `summarize_batch(request_ids)` → operational summary | No — read-only |
+| "Execute this batch." | `approve(request_id)` → `execute(request_id)` per item | Only after explicit per-request approval |
+| "Resume the ones that need it." | `resume(request_id)` for partial requests | Only after re-validation |
+
+### 17.5 Safety Invariants (unchanged from Phase 6)
+
+All Phase 6 safety guarantees are preserved and verified by `test_phase7.py`:
+
+1. **DENY always blocks** — `recommendations()` excludes disallowed providers; `plan_recommended_batch()` creates requests but preflight will block
+2. **UNKNOWN never auto-allows** — unknown-policy opportunities get `review_and_approve` next-action; batch-created requests stay in `awaiting_approval`
+3. **Approval is per-request** — `plan_recommended_batch()` does not call `approve()`; each request must be individually approved
+4. **No secrets in serialized data** — recommendations contain no credential values; execution requests strip secrets via `_strip_secrets()`
+5. **Read-only by default** — `recommendations()`, `recommend_next()`, `get_batch_status()`, `summarize_batch()` never modify state
+6. **Planning never executes** — `plan_recommended_batch()` status is `"planned"`, not `"approved"` or `"executing"`
+7. **Audit remains read-only** — `recommendations()` delegates to `find_opportunities()` which calls `load_state()` (read-only)
+
+### 17.6 Phase 7 Test Coverage
+
+`tests/test_phase7.py` adds 57 tests across 8 test classes:
+
+| Test Class | Tests | Coverage |
+|---|---|---|
+| `TestRecommendationsReadness` | 4 | Read-only, no mutation, no secrets, no external calls |
+| `TestRecommendationsStructure` | 8 | Output structure, sorting, score ranges, field validation |
+| `TestPriorityClassification` | 8 | `_classify_priority()` for all policy/score combinations |
+| `TestNextAction` | 7 | `_next_action()` for all policy/identity combinations |
+| `TestRecommendNext` | 3 | Single-recommendation selector |
+| `TestBatchPlanning` | 8 | Batch creation, awaiting_approval status, no approval/execution, skip duplicates, no secrets |
+| `TestBatchPlanningSafety` | 2 | DENY blocks, UNKNOWN never auto-approved |
+| `TestBatchStatus` | 4 | Batch status query, field presence, not-found handling, read-only |
+| `TestSummarizeBatch` | 8 | Summary structure, by_status, by_provider, batch_id, counter consistency, read-only |
+| `TestBatchOperationalFlow` | 3 | Full flow integration, no secrets, no execution |
+
+**Total: 487 tests pass** (430 Phase 1–6 + 57 Phase 7).

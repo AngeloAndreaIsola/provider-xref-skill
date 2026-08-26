@@ -698,3 +698,104 @@ def _get_skill_path(relative: str) -> str:
     import os
     from pathlib import Path
     return str(Path(os.path.expanduser(f"~/.hermes/skills/provider-xref/{relative}")))
+
+
+# ── Phase 7: Batch Planning ─────────────────────────────────────────────
+#
+# plan_recommended_batch() is a thin composition over the existing
+# execution-request system.  It creates one execution request per
+# recommendation but NEVER approves or executes them.  Each request
+# starts in 'awaiting_approval' — the user must review and approve
+# individual requests before any real work happens.
+
+
+def plan_recommended_batch(
+    recommendations: list[dict],
+    state: dict | None = None,
+    catalog: dict | None = None,
+) -> dict:
+    """Create execution requests for a batch of recommendations.
+
+    This is a *planning* operation — it creates execution requests in
+    'awaiting_approval' status but does NOT approve or execute them.
+
+    For each recommendation:
+      - If the provider already has a connection in state, the
+        recommendation is skipped (idempotency at the batch level).
+      - If the provider is not connected, a new execution request is
+        created via create_execution_request().
+      - Requests that cannot be created (e.g., missing identity) are
+        recorded with an error in the batch summary.
+
+    Returns a dict with:
+      - batch_id: unique identifier for this batch
+      - created: list of {request_id, provider, status, plan}
+      - skipped: list of {provider, reason}
+      - errors: list of {provider, error}
+      - total_requested: number of recommendations
+      - total_created: number of execution requests created
+      - total_skipped: number of recommendations skipped
+    """
+    # Lazy import to avoid circular dependency
+    from .executor import create_execution_request
+    from .state import load_state as _load_state
+    from .catalog import load_catalog as _load_catalog
+
+    if state is None:
+        state = _load_state()
+    if catalog is None:
+        catalog = _load_catalog()
+
+    batch_id = uuid_id("batch")
+    connected_provider_ids = {
+        pa["provider_id"] for pa in state.get("provider_accounts", [])
+        if pa.get("omniroute_connected")
+    }
+
+    created = []
+    skipped = []
+    errors = []
+
+    for rec in recommendations:
+        provider_id = rec.get("provider")
+        identity_id = rec.get("identity")
+
+        # Skip already-connected providers
+        if provider_id in connected_provider_ids:
+            skipped.append({
+                "provider": provider_id,
+                "reason": "already_connected",
+            })
+            continue
+
+        try:
+            req = create_execution_request(
+                operation="register_provider",
+                provider_id=provider_id,
+                identity_id=identity_id,
+            )
+            created.append({
+                "request_id": req["request_id"],
+                "provider": provider_id,
+                "status": req["status"],
+                "policy_status": req.get("policy_status"),
+                "can_automate": req.get("plan", {}).get("can_automate"),
+            })
+        except Exception as e:
+            errors.append({
+                "provider": provider_id,
+                "error": str(e),
+            })
+
+    return {
+        "batch_id": batch_id,
+        "created": created,
+        "skipped": skipped,
+        "errors": errors,
+        "total_requested": len(recommendations),
+        "total_created": len(created),
+        "total_skipped": len(skipped),
+        "total_errors": len(errors),
+        "status": "planned",  # Not approved — awaiting user review
+        "created_at": now_iso(),
+    }
