@@ -317,7 +317,7 @@ class TestOmniRouteDuplicateCases:
 
             # But execute() (non-dry-run) should block due to REQUIRES_REVIEW
             # (unless the user provides explicit confirmation)
-            exec_result = execute(req["request_id"])
+            exec_result = execute(req["request_id"], dry_run=False)
             assert exec_result["status"] == "blocked"
             assert "omniroute" in exec_result.get("reason", "").lower() or \
                    "potential duplicate" in exec_result.get("reason", "").lower()

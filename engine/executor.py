@@ -170,6 +170,12 @@ def create_execution_request(
     """
     _ensure_exec_dir()
 
+    # Capture material-state fingerprint at request creation time.
+    # This is the baseline against which approval-time and execution-time
+    # state are compared. Only material fields that affect execution safety
+    # are included -- unrelated state changes do not invalidate the request.
+    state_at_request = _compute_material_state_fingerprint(provider_id, identity_id)
+
     request_id = uuid_id("exec")
     provider = None
     catalog = None
@@ -230,7 +236,7 @@ def create_execution_request(
         "approval": None,
         "preflight_result": None,
         "workflow_result": None,
-        "state_at_request": None,  # snapshot of relevant state for material-change detection
+        "state_at_request": state_at_request,
         "version": 1,
         "existing_omniroute_connection": existing_omniroute_connection,
     }
@@ -526,6 +532,11 @@ def approve(request_id: str, approver: str = "user") -> dict:
                 "reason": "Preflight check failed",
                 "blocking_checks": hard_blocks}
 
+    # Capture material-state fingerprint at approval time for later verification
+    approval_fingerprint = _compute_material_state_fingerprint(
+        request["provider_id"], request.get("identity_id")
+    )
+
     # Record approval
     approval = {
         "request_id": request_id,
@@ -539,6 +550,7 @@ def approve(request_id: str, approver: str = "user") -> dict:
         },
         "plan_snapshot": _snapshot_plan(request),
         "existing_omniroute_connection": request.get("existing_omniroute_connection"),
+        "approval_state_fingerprint": approval_fingerprint,
     }
 
     request["approval"] = approval
@@ -571,7 +583,86 @@ def cancel(request_id: str, reason: str = "user_cancelled") -> dict:
 # ── Execution ─────────────────────────────────────────────────────────────
 
 
-def execute(request_id: str, dry_run: bool = False) -> dict:
+def _compute_material_state_fingerprint(provider_id, identity_id=None):
+    """Compute a deterministic fingerprint of material state.
+
+    Only fields that could cause an approved request to become unsafe are
+    included: provider_id, identity_id, ownership_status, match_method,
+    omniroute_connected, pa_identity, policy_status, and external connection.
+    Unrelated changes do NOT invalidate this request's approval.
+    """
+    import hashlib
+    state = load_state()
+    catalog = None
+    try:
+        catalog = load_catalog()
+    except Exception:
+        pass
+
+    fingerprint_parts = ["provider:" + str(provider_id),
+                         "identity:" + str(identity_id or "none")]
+
+    pa = find_provider_account(state, provider_id, identity_id)
+    if pa:
+        fingerprint_parts.append("ownership:" + str(pa.get("ownership_status", "unknown")))
+        fingerprint_parts.append("match_method:" + str(pa.get("match_method", "none")))
+        fingerprint_parts.append("omniroute_connected:" + str(pa.get("omniroute_connected", False)))
+        fingerprint_parts.append("pa_identity:" + str(pa.get("identity_id", "none")))
+    else:
+        fingerprint_parts.append("ownership:none")
+
+    if catalog:
+        from .policy import get_opportunity_policy_status
+        ps = get_opportunity_policy_status(catalog, provider_id)
+        fingerprint_parts.append("policy:" + str(ps))
+
+    try:
+        from adapters.omniroute import get_connected_providers
+        connections = get_connected_providers()
+        conn = None
+        for c in connections:
+            if c.get("provider_id") == provider_id:
+                conn = c
+                break
+        if conn:
+            fingerprint_parts.append("omni_conn:" + str(conn.get("connection_id", "none")))
+            fingerprint_parts.append("omni_status:" + str(conn.get("ownership_status", "unknown")))
+        else:
+            fingerprint_parts.append("omni_conn:none")
+    except Exception:
+        pass
+
+    return hashlib.sha256(";".join(fingerprint_parts).encode()).hexdigest()
+
+
+def _verify_approval_freshness(request):
+    """Check if material state changed since the request was approved.
+
+    Returns a mismatch dict if state is stale, or None if approval is
+    still valid.
+    """
+    approval = request.get("approval")
+    if not approval:
+        return None
+
+    approval_fingerprint = approval.get("approval_state_fingerprint")
+    if not approval_fingerprint:
+        return None  # Old request without fingerprint -- cannot verify
+
+    current_fingerprint = _compute_material_state_fingerprint(
+        request["provider_id"], request.get("identity_id")
+    )
+
+    if current_fingerprint != approval_fingerprint:
+        return {
+            "reason": "Material state changed between approval and execution",
+            "approved_fingerprint": approval_fingerprint,
+            "current_fingerprint": current_fingerprint,
+        }
+
+    return None
+
+def execute(request_id: str, dry_run: bool = True) -> dict:
     """
     Execute a registration request.
 
@@ -596,6 +687,18 @@ def execute(request_id: str, dry_run: bool = False) -> dict:
     if not _has_approval(request_id):
         return {"status": "blocked",
                 "reason": "Execution requires explicit approval — call approve() first"}
+
+    # 1b. Verify approval has not gone stale — material state must match
+    # what was approved. If state changed materially since approval, block.
+    stale_check = _verify_approval_freshness(request)
+    if stale_check:
+        request["status"] = "blocked"
+        request["blocked_reason"] = "Approval stale — material state changed since approval"
+        request["stale_approval"] = stale_check
+        _save_request(request)
+        return {"status": "blocked",
+                "reason": "Approval is stale — material state changed since approval",
+                "stale_reason": stale_check["reason"]}
 
     # 2. Run preflight (skip policy check if user explicitly approved)
     pf = preflight(request_id)
@@ -693,7 +796,7 @@ def execute(request_id: str, dry_run: bool = False) -> dict:
     else:
         # Real execution — invoke workflow
         try:
-            wf_result = _invoke_workflow(workflow, provider, request)
+            wf_result = _invoke_workflow(workflow, provider, request, dry_run=dry_run)
         except Exception as e:
             wf_result = {"status": "failed", "error": str(e)}
 
@@ -756,8 +859,15 @@ def _describe_workflow_actions(workflow, provider: dict) -> list[str]:
     return actions
 
 
-def _invoke_workflow(workflow, provider: dict, request: dict) -> dict:
-    """Invoke a workflow in dry_run/interactive mode."""
+def _invoke_workflow(workflow, provider: dict, request: dict, dry_run: bool = True) -> dict:
+    """Invoke a workflow in dry_run/interactive mode.
+
+    The execution mode is determined by the dry_run parameter, which must
+    be propagated from execute(). This ensures that:
+      - dry_run=True   -> workflow.register(opportunity, mode="dry_run")
+      - dry_run=False  -> workflow.register(opportunity, mode="interactive")
+    The safe default is dry_run=True (no mutations) if not specified.
+    """
     # Build an opportunity dict for the workflow
     catalog = load_catalog()
     opportunity = {
@@ -775,8 +885,11 @@ def _invoke_workflow(workflow, provider: dict, request: dict) -> dict:
         "downstream_count": len(provider.get("cascades_to", [])),
     }
 
-    # Use dry_run mode so workflows don't actually execute browser actions
-    result = workflow.register(opportunity, mode="dry_run")
+    # Determine execution mode from the dry_run parameter
+    # dry_run=True   -> mode="dry_run" (safe, no external mutations)
+    # dry_run=False  -> mode="interactive" (actual registration)
+    mode = "dry_run" if dry_run else "interactive"
+    result = workflow.register(opportunity, mode=mode)
 
     # Check for human checkpoint conditions
     if result.get("human_checkpoint_required"):

@@ -249,7 +249,7 @@ class TestIdentityDiscovery:
         emails = [i["value"] for i in identities if i.get("source") == IDENTITY_SOURCE_USER_PROVIDED]
         assert "angeloandrea.isola@gmail.com" in emails
         assert "lazymause@gmail.com" in emails
-        assert "islandgametrale@gmail.com" in emails
+        assert "islandtrailer@gmail.com" in emails
         assert "andrea.isola@me.com" in emails
 
     def test_duplicate_email_no_duplicate_identity(self, mock_state_empty):
@@ -261,7 +261,7 @@ class TestIdentityDiscovery:
         # Each email appears at most once
         assert id_values.count("angeloandrea.isola@gmail.com") == 1
         assert id_values.count("lazymause@gmail.com") == 1
-        assert id_values.count("islandgametrale@gmail.com") == 1
+        assert id_values.count("islandtrailer@gmail.com") == 1
         assert id_values.count("andrea.isola@me.com") == 1
 
     def test_user_provided_identity_has_provenance(self, mock_state_empty):
@@ -355,7 +355,7 @@ class TestOwnershipMatching:
             omni_pa, [], [], mock_catalog
         )
         assert result["ownership_status"] == OWNERSHIP_UNKNOWN
-        assert result["match_confidence"] == "none"
+        assert result["match_confidence"] is None
 
     def test_match_deterministic(self, mock_omni_providers, mock_state_empty, mock_catalog):
         """Test 14: Matching is deterministic."""
@@ -633,7 +633,7 @@ class TestOwnershipConfirmation:
                     "observed_at": None,
                     "ownership_status": OWNERSHIP_UNKNOWN,
                     "match_method": None,
-                    "match_confidence": "none",
+                    "match_confidence": "unknown",
                     "metadata": {},
                 },
             ],
@@ -722,7 +722,7 @@ class TestOwnershipConfirmation:
                 "observed_at": None,
                 "ownership_status": OWNERSHIP_UNKNOWN,
                 "match_method": None,
-                "match_confidence": "none",
+                "match_confidence": "unknown",
                 "metadata": {},
             }],
             "credentials": [],
@@ -955,21 +955,11 @@ class TestRegression:
     def test_schema_validation_passing(self):
         """Test 33: Schema validation remains passing."""
         from engine.utils import validate_json_schema
+        from engine.state import load_state
 
-        state_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "provider_state.json"
-        )
-        if os.path.exists(state_path):
-            state = json.load(open(state_path))
-            # Validate identities against schema
-            for ident in state.get("identities", []):
-                valid, msg = validate_json_schema(ident, "provider_state.schema.json")
-                assert valid, f"Identity schema validation failed: {msg}"
-            # Validate provider accounts against schema
-            for pa in state.get("provider_accounts", []):
-                valid, msg = validate_json_schema(pa, "provider_state.schema.json")
-                assert valid, f"ProviderAccount schema validation failed: {msg}"
+        state = load_state()
+        valid, msg = validate_json_schema(state, "provider_state.schema.json")
+        assert valid, f"State schema validation failed: {msg}"
 
     def test_compileall_passing(self):
         """Test 34: compileall remains passing."""

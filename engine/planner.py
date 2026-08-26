@@ -43,6 +43,7 @@ from .policy import (
     policy_risk_score, get_opportunity_policy_status,
 )
 from .audit import _score_opportunity, _has_compatible_identity
+from .identity import canonical_identity_id
 
 
 # ── Opportunity object ─────────────────────────────────────────────────
@@ -204,7 +205,7 @@ def plan_new_phone(phone_number: str, state: dict | None = None, catalog: dict |
     graph = ProviderGraph(state, catalog)
 
     # ── Step 1: Classify phone identity status ────────────────────────
-    phone_id = f"identity_phone_{phone_number.replace('+', '').replace('-', '').replace(' ', '')[:15]}"
+    phone_id = canonical_identity_id("phone", phone_number)
 
     existing = [i for i in state["identities"] if i.get("value") == phone_number]
     phone_classification = "new_phone_identity"
@@ -435,7 +436,7 @@ def plan_new_email(email_address: str, state: dict | None = None, catalog: dict 
     if existing:
         email_id = existing[0]["id"]
     else:
-        email_id = f"identity_email_{email_address.replace('@', '_').replace('.', '_')}"
+        email_id = canonical_identity_id("email", email_address)
         new_email = {
             "id": email_id,
             "type": "email",

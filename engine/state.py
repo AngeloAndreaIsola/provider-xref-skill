@@ -124,9 +124,22 @@ def get_capabilities(state: dict | None = None) -> list[dict]:
 # ── Mutations (each goes through full pipeline) ─────────────────────────
 
 def add_identity(identity: dict) -> dict:
-    """Add a new identity to state."""
+    """Add a new identity to state.
+
+    If the identity dict has no 'id', a canonical ID is generated from
+    the identity type and value using canonical_identity_id(). This ensures
+    that the same identity always produces the same ID across discovery,
+    matching, and explicit addition.
+    """
     if not identity.get("id"):
-        identity["id"] = uuid_id("identity")
+        # Generate canonical ID from type + value
+        from engine.identity import canonical_identity_id
+        id_type = identity.get("type", "email")
+        id_value = identity.get("value", "")
+        if id_value:
+            identity["id"] = canonical_identity_id(id_type, id_value)
+        else:
+            identity["id"] = uuid_id("identity")
     if "created_at" not in identity:
         identity["created_at"] = now_iso()
     if "status" not in identity:

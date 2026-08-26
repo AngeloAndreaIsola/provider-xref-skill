@@ -619,7 +619,7 @@ class TestHumanCheckpoints:
                 }
                 mock_wf.return_value = mock_instance
 
-                result = execute(req["request_id"])
+                result = execute(req["request_id"], dry_run=False)
                 assert result["status"] in ("partial", "human_checkpoint")
                 # Should not be "completed" — checkpoint means not done yet
                 assert result["status"] != "completed"
@@ -961,8 +961,7 @@ class TestOmnirouteDuplicateSafety:
                 identity_id="identity_email_test1",
             )
             approve(req["request_id"])
-            result = execute(req["request_id"])
-            # Should be blocked by the omniroute_duplicate check
+            result = execute(req["request_id"], dry_run=False)
             assert result["status"] in ("blocked", "partial", "completed")
 
             # Dry-run on a fresh approved request should succeed (no mutations)

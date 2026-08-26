@@ -1,0 +1,11 @@
+# Test-generated plan artifacts
+data/plans/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Temp files
+*.tmp

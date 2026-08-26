@@ -10,6 +10,10 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
+# ── Import state helpers for default_state in autouse fixture ──────────────
+# Must import before fixture definition to avoid circular imports.
+import engine.state  # noqa: E402
+
 # ── Path setup: ensure the skill root is on sys.path ─────────────────────
 SKILL_ROOT = str(Path(__file__).parent.parent.resolve())
 if SKILL_ROOT not in sys.path:
@@ -169,12 +173,37 @@ def full_sample_state(sample_phone_identity, sample_email_identity,
 
 
 # ─── Isolated state — patches STATE_FILE to use a temp directory ──────────
+# Autouse: every test gets a temporary state file so production
+# provider_state.json is NEVER written during tests.
+# The temp file starts with default_state (empty).
+
+@pytest.fixture(autouse=True)
+def _auto_isolate_state(tmp_path, monkeypatch):
+    """Redirect STATE_FILE to a temp file for every test (autouse)."""
+    import engine.utils as utils_mod
+    import engine.state as state_mod
+    import engine.executor as exec_mod
+
+    temp_state_file = tmp_path / "provider_state.json"
+    temp_state_file.write_text(json.dumps(engine.state.default_state(), indent=2))
+
+    temp_exec_dir = tmp_path / "execution_requests"
+    temp_exec_dir.mkdir(exist_ok=True)
+
+    monkeypatch.setattr(utils_mod, "STATE_FILE", temp_state_file)
+    monkeypatch.setattr(state_mod, "STATE_FILE", temp_state_file)
+    monkeypatch.setattr(exec_mod, "EXECUTION_REQUESTS_DIR", temp_exec_dir)
+
+    yield
+
 
 @pytest.fixture
-def isolated_state(tmp_path, full_sample_state):
+def isolated_state(tmp_path, full_sample_state, monkeypatch):
     """
     Write sample state to a temp file and patch all state path constants
     to point there. Tests get isolation without touching real files.
+
+    Returns the full_sample_state for tests that need it.
     """
     import engine.utils as utils_mod
     import engine.state as state_mod
@@ -184,11 +213,10 @@ def isolated_state(tmp_path, full_sample_state):
     state_file = state_dir / "provider_state.json"
     state_file.write_text(json.dumps(full_sample_state, indent=2))
 
-    # Patch STATE_FILE in both utils and state modules (they import it)
-    with patch.object(utils_mod, 'STATE_FILE', state_file):
-        with patch.object(state_mod, 'STATE_FILE', state_file):
-            # Also patch load_state in modules that imported it directly
-            yield full_sample_state
+    monkeypatch.setattr(utils_mod, "STATE_FILE", state_file)
+    monkeypatch.setattr(state_mod, "STATE_FILE", state_file)
+
+    yield full_sample_state
 
 
 @pytest.fixture

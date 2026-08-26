@@ -22,7 +22,8 @@ import json
 from collections import defaultdict
 from typing import Any
 
-from .state import load_state, save_state, now_iso
+from . import state as _state
+from .state import save_state, now_iso
 from .catalog import load_catalog, get_all_providers, get_provider
 from .graph import ProviderGraph
 from .policy import (
@@ -85,7 +86,7 @@ def discover_identities(state: dict | None = None) -> list[dict]:
     not claims of ownership.
     """
     if state is None:
-        state = load_state()
+        state = _state.load_state()
 
     observed_identities = []
     seen_values = set()
@@ -96,7 +97,7 @@ def discover_identities(state: dict | None = None) -> list[dict]:
     # automatically prove ownership of any provider account.
     for user_email in _USER_PROVIDED_EMAILS:
         if user_email and user_email.lower() not in [v.lower() for v in seen_values]:
-            identity_id = f"identity_email_{_normalize_email(user_email)}"
+            identity_id = canonical_identity_id("email", user_email)
             observed_identities.append({
                 "id": identity_id,
                 "type": "email",
@@ -202,7 +203,7 @@ def reconcile_identities(state: dict | None = None, catalog: dict | None = None)
     - Store credentials
     """
     if state is None:
-        state = load_state()
+        state = _state.load_state()
     if catalog is None:
         catalog = load_catalog()
 
@@ -404,6 +405,31 @@ def _discover_omniroute_identities() -> list[dict]:
 
 # ── Ownership Matching ──────────────────────────────────────────────────
 
+# ── Canonical identity ID ─────────────────────────────────────────────────
+
+def canonical_identity_id(identity_type: str, value: str) -> str:
+    """Generate a deterministic, canonical identity ID.
+
+    Format: identity_<type>_<normalized_value>_<8-char-hash>
+
+    The hash suffix prevents collisions from truncation and ensures that
+    long values are uniquely identified without being fully embedded in
+    the ID. Case, whitespace, and character normalization are applied
+    consistently regardless of input.
+    """
+    import re as _re
+    normalized = value.strip().lower()
+    safe_value = _re.sub(r"[^a-z0-9]", "_", normalized)
+
+    hash_suffix = hashlib.sha256(normalized.encode()).hexdigest()[:8]
+    prefix = f"identity_{identity_type}_{safe_value}"
+
+    if len(prefix) > 60:
+        prefix = prefix[:60]
+
+    return f"{prefix}_{hash_suffix}"
+
+
 # User-provided identity leads — these are email addresses the user has
 # explicitly stated they own. They establish source=user_provided
 # observations but do NOT automatically prove ownership of provider
@@ -412,7 +438,7 @@ def _discover_omniroute_identities() -> list[dict]:
 _USER_PROVIDED_EMAILS = [
     "angeloandrea.isola@gmail.com",
     "lazymause@gmail.com",
-    "islandgametrale@gmail.com",
+    "islandtrailer@gmail.com",
     "andrea.isola@me.com",
 ]
 
@@ -453,7 +479,7 @@ def _match_email_identity(omni_provider: dict) -> dict | None:
             for user_email in _USER_PROVIDED_EMAILS:
                 if email_lower == user_email.lower():
                     return {
-                        "identity_id": f"identity_email_{_normalize_email(user_email)}",
+                        "identity_id": canonical_identity_id("email", user_email),
                         "evidence": {
                             "source": "user_provided",
                             "evidence_type": "email_match",
@@ -506,25 +532,19 @@ def match_ownership(
     conn_id = omni_provider.get("connection_id")
     provider_id = omni_provider.get("provider_id", "")
 
-    # ── 0. Email-based identity match (MODERATE evidence → inferred) ──────
-    # If the OmniRoute connection exposes an email that exactly matches
-    # a user-provided identity, this is moderate evidence of ownership.
-    # It does NOT automatically upgrade to "known" — that requires
-    # explicit user confirmation via confirm_ownership().
-    email_match = _match_email_identity(omni_provider)
-    if email_match:
-        return {
-            "ownership_status": OWNERSHIP_INFERRED,
-            "match_method": "email_identity_match",
-            "match_confidence": "medium",
-            "identity_id": email_match["identity_id"],
-            "external_account_id": None,
-            "evidence": [email_match["evidence"]],
-        }
+    # Normalize local_pas: if a full state dict is passed (back-compat),
+    # extract the provider_accounts list from it.
+    if isinstance(local_pas, dict) and not isinstance(local_pas, list):
+        local_pas = local_pas.get("provider_accounts", [])
 
-    # ── 1. Match by OmniRoute connection UUID ──────────────────────────
+    # ── 0. Check known ownership in local state FIRST (highest priority) ────
+    # A connection that is already explicitly known/existing must NOT be
+    # downgraded to inferred merely because a later email match produces
+    # weaker evidence. Priority:
+    #   existing confirmed/known connection UUID > provider ID > email evidence
     for pa in local_pas:
         if conn_id and pa.get("omniroute_account_id") == conn_id:
+            # Strongest: UUID connection match preserves local ownership_status
             return _build_match_result(
                 pa, "connection_id", "high",
                 evidence=[{
@@ -544,7 +564,7 @@ def match_ownership(
                 }],
             )
 
-    # ── 2. Match by provider_id in local state ─────────────────────────
+    # ── 1. Match by provider_id in local state ─────────────────────────
     for pa in local_pas:
         if pa.get("provider_id") == provider_id:
             # We have a local record for this provider_id
@@ -573,6 +593,22 @@ def match_ownership(
                         }],
                     )
 
+    # ── 2. Email-based identity match (MODERATE evidence → inferred) ──────
+    # If the OmniRoute connection exposes an email that exactly matches
+    # a user-provided identity, this is moderate evidence of ownership.
+    # It does NOT automatically upgrade to "known" — that requires
+    # explicit user confirmation via confirm_ownership().
+    email_match = _match_email_identity(omni_provider)
+    if email_match:
+        return {
+            "ownership_status": OWNERSHIP_INFERRED,
+            "match_method": "email_identity_match",
+            "match_confidence": "medium",
+            "identity_id": email_match["identity_id"],
+            "external_account_id": None,
+            "evidence": [email_match["evidence"]],
+        }
+
     # ── 3. 1Password evidence ──────────────────────────────────────────
     op_matches = _match_onepassword_evidence(conn_id, provider_id, op_evidence)
     if op_matches:
@@ -590,7 +626,7 @@ def match_ownership(
     return {
         "ownership_status": OWNERSHIP_UNKNOWN,
         "match_method": None,
-        "match_confidence": "none",
+        "match_confidence": None,
         "identity_id": None,
         "external_account_id": None,
         "evidence": [],
@@ -658,7 +694,7 @@ def match_all_ownerships(
     Deterministic: same inputs produce same outputs.
     """
     if state is None:
-        state = load_state()
+        state = _state.load_state()
     if local_pas is None:
         local_pas = state.get("provider_accounts", [])
     if catalog is None:
@@ -866,7 +902,7 @@ def confirm_ownership(
         The updated provider account record.
     """
     if state is None:
-        state = load_state()
+        state = _state.load_state()
     if catalog is None:
         catalog = load_catalog()
 
@@ -929,7 +965,7 @@ def add_identity(
       - Retrieve any credentials
     """
     if state is None:
-        state = load_state()
+        state = _state.load_state()
 
     # Check for duplicates
     existing = [i for i in state.get("identities", []) if i.get("value") == value]
@@ -940,7 +976,7 @@ def add_identity(
             "message": "Identity already exists in local state",
         }
 
-    identity_id = f"identity_{identity_type}_{value.replace('@', '_').replace('+', '').replace('-', '').replace('.', '_')[:20]}"
+    identity_id = canonical_identity_id(identity_type, value)
     new_identity = {
         "id": identity_id,
         "type": identity_type,
