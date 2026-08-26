@@ -1,0 +1,1109 @@
+{
+  "id": "plan_a75f0a3dd3ec",
+  "trigger_event": "new_phone",
+  "phone_number": "+15551234567",
+  "phone_id": "identity_phone_15551234567",
+  "phone_classification": "new_phone_identity",
+  "phone_in_use_by_account": false,
+  "created_at": "2026-08-26T14:04:45Z",
+  "created": "2026-08-26T14:04:45Z",
+  "graph": {
+    "nodes": [
+      {
+        "id": "node_direct_deepseek",
+        "type": "provider",
+        "provider_id": "deepseek",
+        "label": "DeepSeek",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_gemini",
+        "type": "provider",
+        "provider_id": "gemini",
+        "label": "Google Gemini",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_mistral",
+        "type": "provider",
+        "provider_id": "mistral",
+        "label": "Mistral AI",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_nvidia",
+        "type": "provider",
+        "provider_id": "nvidia",
+        "label": "NVIDIA NIM",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_huggingface",
+        "type": "provider",
+        "provider_id": "huggingface",
+        "label": "Hugging Face",
+        "score": 100,
+        "confidence": 0.8,
+        "policy_status": "restricted",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_openrouter",
+        "type": "provider",
+        "provider_id": "openrouter",
+        "label": "OpenRouter",
+        "score": 100,
+        "confidence": 0.8,
+        "policy_status": "restricted",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_nous-research",
+        "type": "provider",
+        "provider_id": "nous-research",
+        "label": "Nous Research",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_bazaarlink",
+        "type": "provider",
+        "provider_id": "bazaarlink",
+        "label": "BazaarLink",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_cohere",
+        "type": "provider",
+        "provider_id": "cohere",
+        "label": "Cohere",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_fireworks",
+        "type": "provider",
+        "provider_id": "fireworks",
+        "label": "Fireworks AI",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_modelscope",
+        "type": "provider",
+        "provider_id": "modelscope",
+        "label": "ModelScope",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_nebius",
+        "type": "provider",
+        "provider_id": "nebius",
+        "label": "Nebius",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_sambanova",
+        "type": "provider",
+        "provider_id": "sambanova",
+        "label": "SambaNova",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_siliconflow",
+        "type": "provider",
+        "provider_id": "siliconflow",
+        "label": "Silicon Flow",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_scaleway",
+        "type": "provider",
+        "provider_id": "scaleway",
+        "label": "Scaleway",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_freemodel-dev",
+        "type": "provider",
+        "provider_id": "freemodel-dev",
+        "label": "FreeModel.dev",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_cerebras",
+        "type": "provider",
+        "provider_id": "cerebras",
+        "label": "Cerebras",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_pioneer",
+        "type": "provider",
+        "provider_id": "pioneer",
+        "label": "Pioneer",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_azure",
+        "type": "provider",
+        "provider_id": "azure",
+        "label": "Azure OpenAI",
+        "score": 100,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_baseten",
+        "type": "provider",
+        "provider_id": "baseten",
+        "label": "Baseten",
+        "score": 98,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_agentrouter",
+        "type": "provider",
+        "provider_id": "agentrouter",
+        "label": "AgentRouter",
+        "score": 96,
+        "confidence": 1.0,
+        "policy_status": "allowed",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_deepinfra",
+        "type": "provider",
+        "provider_id": "deepinfra",
+        "label": "DeepInfra",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_friendliai",
+        "type": "provider",
+        "provider_id": "friendliai",
+        "label": "FriendliAI",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_featherless-ai",
+        "type": "provider",
+        "provider_id": "featherless-ai",
+        "label": "Featherless AI",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_hyperbolic",
+        "type": "provider",
+        "provider_id": "hyperbolic",
+        "label": "Hyperbolic",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_inference-net",
+        "type": "provider",
+        "provider_id": "inference-net",
+        "label": "Inference.net",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_llm7",
+        "type": "provider",
+        "provider_id": "llm7",
+        "label": "LLM7",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_morph",
+        "type": "provider",
+        "provider_id": "morph",
+        "label": "Morph",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_novita",
+        "type": "provider",
+        "provider_id": "novita",
+        "label": "Novita AI",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_freetheai",
+        "type": "provider",
+        "provider_id": "freetheai",
+        "label": "FreeTheAI",
+        "score": 90,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_agnes",
+        "type": "provider",
+        "provider_id": "agnes",
+        "label": "Agnes",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_aimlapi",
+        "type": "provider",
+        "provider_id": "aimlapi",
+        "label": "AIMLAPI",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_ainative",
+        "type": "provider",
+        "provider_id": "ainative",
+        "label": "AINative",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_aion",
+        "type": "provider",
+        "provider_id": "aion",
+        "label": "Aion",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_blackbox",
+        "type": "provider",
+        "provider_id": "blackbox",
+        "label": "Blackbox",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_charm-hyper",
+        "type": "provider",
+        "provider_id": "charm-hyper",
+        "label": "Charm Hyper",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_claude-web",
+        "type": "provider",
+        "provider_id": "claude-web",
+        "label": "Anthropic Claude (Web)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_codex-cloud",
+        "type": "provider",
+        "provider_id": "codex-cloud",
+        "label": "OpenAI Codex (Cloud)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_deepseek-web",
+        "type": "provider",
+        "provider_id": "deepseek-web",
+        "label": "DeepSeek (Web)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_devin",
+        "type": "provider",
+        "provider_id": "devin",
+        "label": "Devin",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_doubao-web",
+        "type": "provider",
+        "provider_id": "doubao-web",
+        "label": "Doubao (Web)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_jules",
+        "type": "provider",
+        "provider_id": "jules",
+        "label": "Jules",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_lmarena",
+        "type": "provider",
+        "provider_id": "lmarena",
+        "label": "LMArena",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_mimocode",
+        "type": "provider",
+        "provider_id": "mimocode",
+        "label": "MimoCode",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_muse-spark-web",
+        "type": "provider",
+        "provider_id": "muse-spark-web",
+        "label": "Muse Spark (Web)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_ollama-cloud",
+        "type": "provider",
+        "provider_id": "ollama-cloud",
+        "label": "Ollama Cloud",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_opencode",
+        "type": "provider",
+        "provider_id": "opencode",
+        "label": "OpenCode",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_perplexity",
+        "type": "provider",
+        "provider_id": "perplexity",
+        "label": "Perplexity",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_qoder",
+        "type": "provider",
+        "provider_id": "qoder",
+        "label": "Qoder",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_qwen-cloud",
+        "type": "provider",
+        "provider_id": "qwen-cloud",
+        "label": "Qwen (Cloud)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_qwen-web",
+        "type": "provider",
+        "provider_id": "qwen-web",
+        "label": "Qwen (Web)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_sarvam",
+        "type": "provider",
+        "provider_id": "sarvam",
+        "label": "Sarvam",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_v0-vercel",
+        "type": "provider",
+        "provider_id": "v0-vercel",
+        "label": "v0 (Vercel)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_vercel-ai-gateway",
+        "type": "provider",
+        "provider_id": "vercel-ai-gateway",
+        "label": "Vercel AI Gateway",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_zai",
+        "type": "provider",
+        "provider_id": "zai",
+        "label": "Zai",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_ollama-local",
+        "type": "provider",
+        "provider_id": "ollama-local",
+        "label": "Ollama (Local)",
+        "score": 88,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_bytez",
+        "type": "provider",
+        "provider_id": "bytez",
+        "label": "Bytez",
+        "score": 84,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_longcat",
+        "type": "provider",
+        "provider_id": "longcat",
+        "label": "Longcat",
+        "score": 80,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_nscale",
+        "type": "provider",
+        "provider_id": "nscale",
+        "label": "NScale",
+        "score": 80,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_predibase",
+        "type": "provider",
+        "provider_id": "predibase",
+        "label": "Predibase",
+        "score": 79,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_bluesminds",
+        "type": "provider",
+        "provider_id": "bluesminds",
+        "label": "Blue's Mind's",
+        "score": 75,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      },
+      {
+        "id": "node_direct_openvecta",
+        "type": "provider",
+        "provider_id": "openvecta",
+        "label": "OpenVecta",
+        "score": 70,
+        "confidence": 0.1,
+        "policy_status": "unknown",
+        "auth_type": "api_key",
+        "direct": true,
+        "already_connected": false
+      }
+    ],
+    "edges": [
+      {
+        "source": "new_phone",
+        "target": "node_direct_deepseek",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_gemini",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_mistral",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_nvidia",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_huggingface",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_openrouter",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_nous-research",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_bazaarlink",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_cohere",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_fireworks",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_modelscope",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_nebius",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_sambanova",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_siliconflow",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_scaleway",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_freemodel-dev",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_cerebras",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_pioneer",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_azure",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_baseten",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_agentrouter",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_deepinfra",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_friendliai",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_featherless-ai",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_hyperbolic",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_inference-net",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_llm7",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_morph",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_novita",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_freetheai",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_agnes",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_aimlapi",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_ainative",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_aion",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_blackbox",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_charm-hyper",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_claude-web",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_codex-cloud",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_deepseek-web",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_devin",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_doubao-web",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_jules",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_lmarena",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_mimocode",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_muse-spark-web",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_ollama-cloud",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_opencode",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_perplexity",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_qoder",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_qwen-cloud",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_qwen-web",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_sarvam",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_v0-vercel",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_vercel-ai-gateway",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_zai",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_ollama-local",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_bytez",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_longcat",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_nscale",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_predibase",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_bluesminds",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "node_direct_openvecta",
+        "relationship": "enables"
+      },
+      {
+        "source": "new_phone",
+        "target": "new_phone",
+        "relationship": "verifies"
+      }
+    ]
+  },
+  "ranked_plan": [
+    {
+      "step": "Register directly with DeepSeek",
+      "description": "Direct api_key registration",
+      "unlocks": []
+    },
+    {
+      "step": "Register directly with Google Gemini",
+      "description": "Direct api_key registration",
+      "unlocks": []
+    },
+    {
+      "step": "Register directly with Mistral AI",
+      "description": "Direct api_key registration",
+      "unlocks": []
+    },
+    {
+      "step": "Register directly with NVIDIA NIM",
+      "description": "Direct api_key registration",
+      "unlocks": []
+    },
+    {
+      "step": "Register directly with Hugging Face",
+      "description": "Direct api_key registration",
+      "unlocks": []
+    }
+  ],
+  "summary": {
+    "identity_opportunities": 0,
+    "direct_provider_opportunities": 62,
+    "downstream_provider_opportunities": 0,
+    "estimated_total_new_accounts": 62
+  },
+  "status": "planned"
+}

@@ -17,6 +17,8 @@ Key rules:
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections import defaultdict
 from typing import Any
 
@@ -52,6 +54,15 @@ OWNERSHIP_INFERRED = "inferred"
 OWNERSHIP_REQUIRES_REVIEW = "requires_review"
 
 
+# ── Identity sources ───────────────────────────────────────────────────
+
+IDENTITY_SOURCE_USER_PROVIDED = "user_provided"
+IDENTITY_SOURCE_LOCAL_STATE = "local_state"
+IDENTITY_SOURCE_OMNIROUTE = "omniroute_metadata"
+IDENTITY_SOURCE_1PASSWORD = "onepassword_metadata"
+IDENTITY_SOURCE_AGY = "agy"
+
+
 # ── Identity Discovery ───────────────────────────────────────────────────
 
 def discover_identities(state: dict | None = None) -> list[dict]:
@@ -59,6 +70,7 @@ def discover_identities(state: dict | None = None) -> list[dict]:
     Discover identities from safe sources.
 
     Sources (in order of reliability):
+      0. User-provided identity leads (explicitly declared by user — highest priority)
       1. Local state (provider_state.json) — explicitly user-declared identities
       2. 1Password login items (metadata only — username/email fields)
       3. OmniRoute safe metadata (display_name, email fields — metadata only)
@@ -77,6 +89,25 @@ def discover_identities(state: dict | None = None) -> list[dict]:
 
     observed_identities = []
     seen_values = set()
+
+    # 0. User-provided identity leads (highest priority)
+    # These are email addresses the user has explicitly stated they own.
+    # They establish source=user_provided observations but do NOT
+    # automatically prove ownership of any provider account.
+    for user_email in _USER_PROVIDED_EMAILS:
+        if user_email and user_email.lower() not in [v.lower() for v in seen_values]:
+            identity_id = f"identity_email_{_normalize_email(user_email)}"
+            observed_identities.append({
+                "id": identity_id,
+                "type": "email",
+                "value": user_email,
+                "source": IDENTITY_SOURCE_USER_PROVIDED,
+                "confidence": "high",
+                "verified": False,
+                "evidence_type": "user_provided_identity",
+                "note": "Identity explicitly provided by user in Phase 6.4",
+            })
+            seen_values.add(user_email.lower())
 
     # 1. Local state identities
     for identity in state.get("identities", []):
@@ -135,6 +166,137 @@ def discover_identities(state: dict | None = None) -> list[dict]:
         seen_values.add(value)
 
     return observed_identities
+
+
+def reconcile_identities(state: dict | None = None, catalog: dict | None = None) -> dict:
+    """
+    Reconcile identities, OmniRoute connections, and ownership status.
+
+    This is a READ-ONLY operation (except it may update local state with
+    observation metadata — never credentials).
+
+    Returns a reconciliation report:
+    {
+        "identities": [...],          # discovered identity observations
+        "ownership": {
+            "known": [...],
+            "inferred": [...],
+            "requires_review": [...],
+            "unknown": [...],
+        },
+        "review_queue": [...],         # items requiring user confirmation
+        "duplicate_check": {           # CASE analysis for OmniRoute connections
+            "case_a": [...],          # confirmed duplicates (known ownership)
+            "case_b": [...],          # requires_review (unknown ownership)
+            "case_c": [...],          # different identity (hard block)
+            "case_d": [...],          # no existing connection (pass)
+        },
+        "state_hash_before": str,
+        "state_hash_after": str,
+    }
+
+    Does NOT:
+    - Register any accounts
+    - Modify OmniRoute
+    - Write to 1Password
+    - Store credentials
+    """
+    if state is None:
+        state = load_state()
+    if catalog is None:
+        catalog = load_catalog()
+
+    # Hash state before reconciliation
+    state_before = hashlib.sha256(
+        json.dumps(state, sort_keys=True).encode()
+    ).hexdigest()
+
+    # Discover identities (read-only — observations only)
+    identities = discover_identities(state)
+
+    # Get OmniRoute connections (GET only)
+    omni_providers = []
+    if is_running():
+        try:
+            omni_providers = get_connected_providers()
+        except Exception:
+            omni_providers = []
+
+    # Match ownership for all connections
+    op_evidence = _discover_onepassword_evidence_items()
+    ownership_results = match_all_ownerships(
+        omni_providers,
+        state.get("provider_accounts", []),
+        state=state,
+        catalog=catalog,
+    )
+
+    # Build review queue
+    review_queue = build_review_queue(ownership_results, omni_providers, state, catalog)
+
+    # Duplicate check (read-only analysis)
+    duplicate_check = {
+        "case_a": [],  # known ownership + existing connection = hard block
+        "case_b": [],  # unknown ownership + existing connection = requires_review
+        "case_c": [],  # known ownership to another identity = hard block
+        "case_d": [],  # no existing connection = pass
+    }
+
+    local_pa_by_provider = {}
+    for pa in state.get("provider_accounts", []):
+        local_pa_by_provider[pa.get("provider_id")] = pa
+
+    for omni_pa in omni_providers:
+        pid = omni_pa.get("provider_id", "")
+        conn_id = omni_pa.get("connection_id", "")
+
+        result = match_ownership(
+            omni_pa, state.get("provider_accounts", []), op_evidence, catalog
+        )
+        status = result["ownership_status"]
+
+        if status == OWNERSHIP_MATCHED:
+            # CASE A or C
+            dup_entry = {
+                "provider_id": pid,
+                "connection_id": conn_id,
+                "ownership_status": status,
+                "identity_id": result.get("identity_id"),
+                "case": "A" if not result.get("identity_id") or \
+                    local_pa_by_provider.get(pid, {}).get("identity_id") == result.get("identity_id")
+                    else "C",
+            }
+            duplicate_check["case_a" if dup_entry["case"] == "A" else "case_c"].append(dup_entry)
+        elif status == OWNERSHIP_REQUIRES_REVIEW:
+            duplicate_check["case_b"].append({
+                "provider_id": pid,
+                "connection_id": conn_id,
+                "ownership_status": status,
+            })
+
+    # Determine CASE D: ALLOW providers with no existing OmniRoute connection
+    for p in get_all_providers(catalog):
+        if p.get("policy") == "allow" and p["id"] not in {
+            c.get("provider_id") for c in omni_providers
+        }:
+            duplicate_check["case_d"].append({
+                "provider_id": p["id"],
+                "connection_id": None,
+                "ownership_status": "pass",
+            })
+
+    state_after = hashlib.sha256(
+        json.dumps(state, sort_keys=True).encode()
+    ).hexdigest()
+
+    return {
+        "identities": identities,
+        "ownership": ownership_results,
+        "review_queue": review_queue,
+        "duplicate_check": duplicate_check,
+        "state_hash_before": state_before,
+        "state_hash_after": state_after,
+    }
 
 
 def _discover_onepassword_identities() -> list[dict]:
@@ -242,6 +404,75 @@ def _discover_omniroute_identities() -> list[dict]:
 
 # ── Ownership Matching ──────────────────────────────────────────────────
 
+# User-provided identity leads — these are email addresses the user has
+# explicitly stated they own. They establish source=user_provided
+# observations but do NOT automatically prove ownership of provider
+# accounts. Email match = moderate evidence → inferred (requires_review
+# if combined with conflicting evidence, known if user explicitly confirms).
+_USER_PROVIDED_EMAILS = [
+    "angeloandrea.isola@gmail.com",
+    "lazymause@gmail.com",
+    "islandgametrale@gmail.com",
+    "andrea.isola@me.com",
+]
+
+
+def _match_email_identity(omni_provider: dict) -> dict | None:
+    """
+    Check if an OmniRoute connection's email matches a user-provided identity.
+
+    This is MODERATE evidence (→ inferred), not strong evidence (→ known).
+    The email must exactly match one of the user's declared email identities.
+
+    Searches both the 'email' field and the 'display_name'/'name' fields
+    (since some OmniRoute connections embed the email in the display name,
+    e.g., "GitHub andrea.isola@me.com" for agentrouter).
+
+    Returns the match dict or None if no match.
+    """
+    import re
+
+    # Collect all fields that might contain an email address
+    candidate_fields = []
+    email = omni_provider.get("email") or omni_provider.get("metadata", {}).get("email")
+    if email:
+        candidate_fields.append(email)
+
+    display_name = omni_provider.get("display_name") or omni_provider.get("name")
+    if display_name:
+        candidate_fields.append(display_name)
+
+    for field_val in candidate_fields:
+        if not field_val:
+            continue
+
+        # Extract all email-like substrings from the field value
+        found_emails = re.findall(r'[\w.+-]+@[\w.-]+\.\w+', field_val)
+        for found_email in found_emails:
+            email_lower = found_email.lower().strip()
+            for user_email in _USER_PROVIDED_EMAILS:
+                if email_lower == user_email.lower():
+                    return {
+                        "identity_id": f"identity_email_{_normalize_email(user_email)}",
+                        "evidence": {
+                            "source": "user_provided",
+                            "evidence_type": "email_match",
+                            "strength": "moderate",
+                            "email": user_email,
+                            "connection_id": omni_provider.get("connection_id"),
+                            "provider_id": omni_provider.get("provider_id", ""),
+                            "note": "Exact email match between OmniRoute connection metadata and user-provided identity. Requires user confirmation to upgrade to 'known'.",
+                        },
+                    }
+    return None
+
+
+def _normalize_email(email: str) -> str:
+    """Normalize an email address for deterministic ID generation."""
+    import re
+    return re.sub(r"[^a-zA-Z0-9]", "_", email.lower())[:40]
+
+
 def match_ownership(
     omni_provider: dict,
     local_pas: list[dict],
@@ -274,6 +505,22 @@ def match_ownership(
     """
     conn_id = omni_provider.get("connection_id")
     provider_id = omni_provider.get("provider_id", "")
+
+    # ── 0. Email-based identity match (MODERATE evidence → inferred) ──────
+    # If the OmniRoute connection exposes an email that exactly matches
+    # a user-provided identity, this is moderate evidence of ownership.
+    # It does NOT automatically upgrade to "known" — that requires
+    # explicit user confirmation via confirm_ownership().
+    email_match = _match_email_identity(omni_provider)
+    if email_match:
+        return {
+            "ownership_status": OWNERSHIP_INFERRED,
+            "match_method": "email_identity_match",
+            "match_confidence": "medium",
+            "identity_id": email_match["identity_id"],
+            "external_account_id": None,
+            "evidence": [email_match["evidence"]],
+        }
 
     # ── 1. Match by OmniRoute connection UUID ──────────────────────────
     for pa in local_pas:
