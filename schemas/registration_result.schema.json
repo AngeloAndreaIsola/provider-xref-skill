@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegistrationHistory",
+  "description": "History of registration attempts. Each entry is a RegistrationResult.",
+  "type": "object",
+  "required": ["history_version", "entries"],
+  "properties": {
+    "history_version": {
+      "type": "integer",
+      "description": "Version of the history schema."
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "provider_id", "started_at", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "plan_id": {"type": "string"},
+          "provider_id": {"type": "string"},
+          "identity_id": {"type": "string"},
+          "external_account_id": {"type": "string"},
+          "trigger_event": {"type": "string"},
+          "started_at": {"type": "string", "format": "date-time"},
+          "completed_at": {"type": "string", "format": "date-time"},
+          "status": {
+            "type": "string",
+            "enum": ["planned", "waiting_for_user", "in_progress", "verification_required", "completed", "failed", "blocked", "policy_blocked", "partial"]
+          },
+          "steps": {
+            "type": "object",
+            "description": "Map of step name to status. E.g. {'registration': 'completed', 'verification': 'completed'}",
+            "additionalProperties": {"type": "string"}
+          },
+          "method": {"type": "string", "enum": ["oauth", "api_key", "password", "pat"]},
+          "credential_created": {"type": "boolean"},
+          "credential_ref": {
+            "type": "object",
+            "properties": {
+              "backend": {"type": "string"},
+              "vault": {"type": "string"},
+              "item_id": {"type": "string"},
+              "field": {"type": "string"}
+            }
+          },
+          "omniroute_status": {"type": "string", "enum": ["connected", "disconnected", "failed", "not_attempted"]},
+          "omniroute_account_id": {"type": "string"},
+          "onepassword_status": {"type": "string", "enum": ["stored", "updated", "failed", "not_attempted"]},
+          "policy_status": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+          "phone_used": {"type": "string", "description": "Phone number used for verification, nullable"},
+          "email_used": {"type": "string", "description": "Email used for registration"},
+          "failure_reason": {"type": "string"},
+          "metadata": {"type": "object"}
+        }
+      }
+    }
+  }
+}

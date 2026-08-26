@@ -1,0 +1,90 @@
+{
+  "id": "plan_4eb09716c960",
+  "provider_id": "agentrouter",
+  "provider_name": "AgentRouter",
+  "auth_type": "api_key",
+  "workflow": "api_key",
+  "status": "planned",
+  "policy_status": "allowed",
+  "can_automate": true,
+  "can_automate_reason": "Automation allowed per catalog policy",
+  "required_identities": [
+    "email"
+  ],
+  "available_identities": [],
+  "missing_identities": [
+    "email"
+  ],
+  "missing_identity_count": 1,
+  "identity_blocker": true,
+  "steps": [
+    {
+      "name": "discover",
+      "label": "DISCOVER",
+      "status": "pending"
+    },
+    {
+      "name": "eligibility_check",
+      "label": "ELIGIBILITY_CHECK",
+      "status": "pending"
+    },
+    {
+      "name": "select_identity",
+      "label": "SELECT_IDENTITY",
+      "status": "pending"
+    },
+    {
+      "name": "prepare_credentials",
+      "label": "PREPARE_CREDENTIALS",
+      "status": "pending"
+    },
+    {
+      "name": "open_provider",
+      "label": "OPEN_PROVIDER",
+      "status": "pending"
+    },
+    {
+      "name": "registration",
+      "label": "REGISTRATION",
+      "status": "pending"
+    },
+    {
+      "name": "email_verification",
+      "label": "EMAIL_VERIFICATION",
+      "status": "pending"
+    },
+    {
+      "name": "api_key_extraction",
+      "label": "API_KEY_EXTRACTION",
+      "status": "pending"
+    },
+    {
+      "name": "omniroute_connection",
+      "label": "OMNIROUTE_CONNECTION",
+      "status": "pending"
+    },
+    {
+      "name": "onepassword_storage",
+      "label": "1PASSWORD_STORAGE",
+      "status": "pending"
+    },
+    {
+      "name": "state_update",
+      "label": "STATE_UPDATE",
+      "status": "pending"
+    },
+    {
+      "name": "verify",
+      "label": "VERIFY",
+      "status": "pending"
+    },
+    {
+      "name": "complete",
+      "label": "COMPLETE",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-26T10:28:01Z",
+  "approval_required": false,
+  "free_quota": "Free tier"
+}

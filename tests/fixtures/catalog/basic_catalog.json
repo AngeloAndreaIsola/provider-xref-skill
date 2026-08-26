@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2025-01-10T00:00:00Z",
+  "scoring_weights": {
+    "quota_value": 15,
+    "usefulness": 15,
+    "downstream_capabilities": 30,
+    "compatibility": 15,
+    "account_freshness": 5,
+    "registration_cost": -10,
+    "verification_cost": -5,
+    "policy_risk": -10
+  },
+  "providers": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "auth_type": "api_key",
+      "category": "llm",
+      "identity_requirements": ["email"],
+      "identity_relationships": [],
+      "verification_requirements": ["email"],
+      "signup_difficulty": "moderate",
+      "tier_value": 50,
+      "usefulness": 90,
+      "compatibility": 95,
+      "cascades_to": [],
+      "policy": {
+        "automation_allowed": "allowed",
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "unknown",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "unknown"
+      },
+      "free_tier": {
+        "enabled": true,
+        "quota": "$5 credit (~333K GPT-3.5 tokens)"
+      },
+      "omniroute_support": true,
+      "signup_url": "https://platform.openai.com/signup"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "auth_type": "api_key",
+      "category": "llm",
+      "identity_requirements": ["email"],
+      "identity_relationships": [],
+      "verification_requirements": ["email"],
+      "signup_difficulty": "moderate",
+      "tier_value": 60,
+      "usefulness": 85,
+      "compatibility": 90,
+      "cascades_to": [],
+      "policy": {
+        "automation_allowed": "unknown",
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "free_tier": {
+        "enabled": true,
+        "quota": "$5 credit"
+      },
+      "omniroute_support": true,
+      "signup_url": "https://claude.ai/signup"
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "auth_type": "api_key",
+      "category": "llm",
+      "identity_requirements": ["email"],
+      "identity_relationships": [],
+      "verification_requirements": ["email"],
+      "signup_difficulty": "easy",
+      "tier_value": 45,
+      "usefulness": 75,
+      "compatibility": 95,
+      "cascades_to": [],
+      "policy": {
+        "automation_allowed": "unknown",
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "free_tier": {
+        "enabled": true,
+        "quota": "2K RPM"
+      },
+      "omniroute_support": true,
+      "signup_url": "https://console.groq.com"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "auth_type": "oauth",
+      "category": "identity",
+      "identity_requirements": ["email", "phone"],
+      "identity_relationships": [],
+      "verification_requirements": ["email", "phone"],
+      "signup_difficulty": "moderate",
+      "tier_value": 70,
+      "usefulness": 95,
+      "compatibility": 100,
+      "cascades_to": ["gemini", "kiro", "antigravity", "github", "claude", "cursor", "cline", "kilocode"],
+      "policy": {
+        "automation_allowed": "disallowed",
+        "multiple_accounts": "disallowed",
+        "duplicate_account_policy": "disallowed",
+        "third_party_proxy_allowed": "disallowed",
+        "phone_reuse_allowed": "unknown"
+      },
+      "free_tier": {
+        "enabled": true,
+        "quota": "Varies by service"
+      },
+      "omniroute_support": true,
+      "signup_url": "https://accounts.google.com/signup"
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "auth_type": "oauth",
+      "category": "development",
+      "identity_requirements": ["email", "google"],
+      "identity_relationships": ["google"],
+      "verification_requirements": ["email", "phone"],
+      "signup_difficulty": "moderate",
+      "tier_value": 40,
+      "usefulness": 90,
+      "compatibility": 95,
+      "cascades_to": ["codex", "cursor", "cline", "kilocode", "antigravity", "openrouter", "agentrouter"],
+      "policy": {
+        "automation_allowed": "disallowed",
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "free_tier": {
+        "enabled": true,
+        "quota": "Public repos unlimited"
+      },
+      "omniroute_support": true,
+      "signup_url": "https://github.com/join"
+    },
+    {
+      "id": "forbidden_provider",
+      "name": "Forbidden Provider",
+      "auth_type": "api_key",
+      "category": "test",
+      "identity_requirements": ["phone"],
+      "identity_relationships": [],
+      "verification_requirements": ["phone"],
+      "signup_difficulty": "hard",
+      "tier_value": 10,
+      "usefulness": 20,
+      "compatibility": 30,
+      "cascades_to": [],
+      "policy": {
+        "automation_allowed": "disallowed",
+        "multiple_accounts": "disallowed",
+        "duplicate_account_policy": "disallowed",
+        "third_party_proxy_allowed": "disallowed",
+        "phone_reuse_allowed": "disallowed"
+      },
+      "free_tier": {
+        "enabled": false,
+        "quota": "None"
+      },
+      "omniroute_support": false,
+      "signup_url": "https://example.com"
+    }
+  ]
+}

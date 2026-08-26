@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProviderState",
+  "description": "Current known state of identities, accounts, and credentials. No secrets stored here.",
+  "type": "object",
+  "required": ["schema_version", "updated_at", "identities", "external_accounts", "provider_accounts", "credentials", "capabilities"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "description": "Schema version for migrations.",
+      "const": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of last state update."
+    },
+    "identities": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Identity"}
+    },
+    "external_accounts": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/ExternalAccount"}
+    },
+    "provider_accounts": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/ProviderAccount"}
+    },
+    "credentials": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Credential"}
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Capability"}
+    }
+  },
+  "definitions": {
+    "Identity": {
+      "type": "object",
+      "required": ["id", "type", "created_at"],
+      "properties": {
+        "id": {"type": "string", "description": "Unique ID, e.g. identity_google_abc123"},
+        "type": {"type": "string", "enum": ["google", "github", "microsoft", "email", "phone", "apple", "other"]},
+        "label": {"type": "string", "description": "Human-readable label"},
+        "value": {"type": "string", "description": "Email, phone number, or identifier"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "status": {"type": "string", "enum": ["active", "suspended", "consumed", "available", "retired"], "default": "active"},
+        "verification": {
+          "type": "object",
+          "properties": {
+            "email_verified": {"type": "boolean"},
+            "phone_verified": {"type": "boolean"},
+            "mfa_enabled": {"type": "boolean"}
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "e.g. 'phone_verification_required', 'rate_limited', 'risk_check'"
+        },
+        "source": {"type": "string", "description": "e.g. 'manual', 'omniroute_sync', 'registration'", "default": "manual"},
+        "metadata": {"type": "object", "description": "Provider-specific metadata"}
+      }
+    },
+    "ExternalAccount": {
+      "type": "object",
+      "required": ["id", "identity_id", "provider"],
+      "properties": {
+        "id": {"type": "string"},
+        "identity_id": {"type": "string", "description": "References Identity.id"},
+        "provider": {"type": "string", "description": "e.g. 'google', 'github'"},
+        "status": {"type": "string", "enum": ["active", "suspended", "unknown", "disconnected"], "default": "unknown"},
+        "username": {"type": "string"},
+        "display_name": {"type": "string"},
+        "email": {"type": "string"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "last_seen": {"type": "string", "format": "date-time"},
+        "auth_method": {"type": "string", "enum": ["oauth", "password", "pat", "unknown"]},
+        "credential_ref": {
+          "type": ["object", "null"],
+          "properties": {
+            "backend": {"type": "string", "enum": ["1password"]},
+            "vault": {"type": "string"},
+            "item_id": {"type": ["string", "null"]}
+          }
+        },
+        "metadata": {"type": "object"}
+      }
+    },
+    "ProviderAccount": {
+      "type": "object",
+      "required": ["id", "provider_id"],
+      "properties": {
+        "id": {"type": "string", "description": "Unique account identifier"},
+        "provider_id": {"type": "string", "description": "References ProviderCatalog.id"},
+        "identity_id": {"type": ["string", "null"], "description": "Identity used to register, nullable"},
+        "external_account_id": {"type": ["string", "null"], "description": "References ExternalAccount.id, nullable"},
+        "status": {
+          "type": "string",
+          "enum": ["connected", "disconnected", "unknown", "partially_configured", "error"],
+          "default": "unknown"
+        },
+        "auth_type": {"type": "string", "enum": ["oauth", "api_key", "password", "pat", "unknown"]},
+        "credential_ref": {
+          "type": ["object", "null"],
+          "properties": {
+            "backend": {"type": "string", "enum": ["1password"]},
+            "vault": {"type": "string"},
+            "item_id": {"type": ["string", "null"]},
+            "field": {"type": "string"}
+          }
+        },
+        "omniroute_connected": {"type": "boolean", "default": false},
+        "omniroute_account_id": {"type": ["string", "null"], "description": "Account ID in OmniRoute, nullable"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "last_verified": {"type": "string", "format": "date-time"},
+        "last_error": {"type": "string"},
+        "source": {"type": "string", "description": "Origin of this record: 'manual', 'omniroute_sync', 'onepassword_sync', 'registration'", "default": "manual"},
+        "observed_at": {"type": ["string", "null"], "format": "date-time", "description": "When this provider account was last observed in an external system"},
+        "ownership_status": {"type": "string", "enum": ["known", "unknown", "inferred", "requires_review"], "default": "unknown", "description": "Whether the identity owning this account is known"},
+        "match_method": {"type": ["string", "null"], "description": "How this account was matched to an identity: 'omniroute_uuid', 'provider_id', 'external_account', '1password_username', 'manual'"},
+        "match_confidence": {"type": ["string", "null"], "enum": ["high", "medium", "low", "unknown"], "description": "Evidence-based confidence in the ownership match"},
+        "metadata": {"type": "object"}
+      }
+    },
+    "Credential": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": {"type": "string"},
+        "type": {"type": "string", "enum": ["api_key", "oauth_token", "password", "pat"]},
+        "backend": {"type": "string", "enum": ["1password"]},
+        "vault": {"type": "string"},
+        "item_id": {"type": "string"},
+        "field": {"type": "string"},
+        "provider_account_id": {"type": "string", "description": "References ProviderAccount.id, nullable"},
+        "external_account_id": {"type": "string", "description": "References ExternalAccount.id, nullable"},
+        "label": {"type": "string"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "rotated_at": {"type": "string", "format": "date-time"},
+        "status": {"type": "string", "enum": ["active", "rotated", "revoked", "unknown"], "default": "unknown"}
+      }
+    },
+    "Capability": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string", "description": "e.g. 'api_quota', 'oauth_access', 'copilot', 'model_access'"},
+        "provider_account_id": {"type": "string", "description": "References ProviderAccount.id, nullable"},
+        "external_account_id": {"type": "string", "description": "References ExternalAccount.id, nullable"},
+        "identity_id": {"type": "string", "description": "References Identity.id, nullable"},
+        "type": {"type": "string", "description": "e.g. 'free_quota', 'oauth', 'github_copilot'"},
+        "value": {"type": "string", "description": "e.g. '1M tokens/day', '50 credits/month'"},
+        "status": {"type": "string", "enum": ["active", "expired", "unknown"], "default": "unknown"},
+        "expires_at": {"type": "string", "format": "date-time", "description": "nullable"},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

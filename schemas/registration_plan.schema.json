@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegistrationPlan",
+  "description": "A plan for registering with a provider, including opportunity scoring and state machine.",
+  "type": "object",
+  "required": ["id", "provider_id", "status", "created_at", "steps"],
+  "properties": {
+    "id": {"type": "string"},
+    "provider_id": {"type": "string"},
+    "identity_id": {"type": "string"},
+    "external_account_id": {"type": "string"},
+    "trigger_event": {"type": "string", "description": "e.g. 'new_phone', 'manual', 'new_email'"},
+    "status": {
+      "type": "string",
+      "enum": ["discovered", "eligibility_check", "planned", "approved", "preparing", "registration", "verification", "credential_acquisition", "omniroute_connection", "onepassword_storage", "verifying", "completed", "failed", "blocked", "policy_blocked", "waiting_for_user", "partial"],
+      "default": "discovered"
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "score": {
+      "type": "object",
+      "properties": {
+        "total": {"type": "number"},
+        "components": {"type": "object"},
+        "confidence": {"type": "number"}
+      }
+    },
+    "policy_status": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+    "approval_required": {"type": "boolean", "default": true},
+    "steps": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Step"}
+    },
+    "requirements": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Identity types needed, e.g. ['email', 'github']"
+    },
+    "human_checkpoint": {
+      "type": "string",
+      "description": "If set, waiting for human action at this checkpoint"
+    },
+    "error": {"type": "string"},
+    "result": {
+      "type": "object",
+      "properties": {
+        "credential_ref": {"type": "object"},
+        "omniroute_account_id": {"type": "string"},
+        "onepassword_item_id": {"type": "string"},
+        "verified": {"type": "boolean"}
+      }
+    }
+  },
+  "definitions": {
+    "Step": {
+      "type": "object",
+      "required": ["name", "status"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["discover", "eligibility_check", "select_identity", "prepare_credentials", "open_provider", "registration", "email_verification", "phone_verification", "oauth", "api_key_extraction", "omniroute_connection", "onepassword_storage", "state_update", "verify", "complete"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_progress", "completed", "failed", "skipped", "waiting_for_user"]
+        },
+        "details": {"type": "string"},
+        "started_at": {"type": "string", "format": "date-time"},
+        "completed_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

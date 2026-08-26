@@ -1,0 +1,73 @@
+{
+  "request_id": "exec_8d52268f6482",
+  "created_at": "2026-08-26T10:41:49Z",
+  "operation": "register_provider",
+  "provider_id": "agentrouter",
+  "identity_id": "identity_email_test1",
+  "external_account_id": null,
+  "policy_status": "allowed",
+  "plan": {
+    "provider_id": "agentrouter",
+    "provider_name": "AgentRouter",
+    "identity_id": "identity_email_test1",
+    "external_account_id": null,
+    "auth_type": "api_key",
+    "operation": "register_provider",
+    "policy_status": "allowed",
+    "can_automate": true,
+    "required_approvals": [
+      "user_approval"
+    ]
+  },
+  "required_approvals": [
+    "user_approval"
+  ],
+  "status": "awaiting_approval",
+  "approval": null,
+  "preflight_result": {
+    "allowed": false,
+    "request_id": "exec_8d52268f6482",
+    "checks": [
+      {
+        "name": "provider_exists",
+        "result": "PASS"
+      },
+      {
+        "name": "policy",
+        "result": "PASS"
+      },
+      {
+        "name": "identity",
+        "result": "FAIL",
+        "reason": "Identity 'identity_email_test1' not found in local state"
+      },
+      {
+        "name": "duplicate",
+        "result": "PASS"
+      },
+      {
+        "name": "omniroute_duplicate",
+        "result": "REQUIRES_REVIEW",
+        "reason": "OmniRoute connection test-conn-456 has unknown ownership — potential duplicate",
+        "connection_id": "test-conn-456",
+        "existing_connection": "test-conn-456"
+      },
+      {
+        "name": "plan_stability",
+        "result": "PASS"
+      }
+    ],
+    "provider_id": "agentrouter"
+  },
+  "workflow_result": null,
+  "state_at_request": null,
+  "version": 1,
+  "existing_omniroute_connection": {
+    "connection_id": "test-conn-456",
+    "provider_id": "agentrouter",
+    "auth_type": "api_key",
+    "ownership_status": "unknown",
+    "identity_id": null
+  },
+  "existing_omniroute_ownership": "unknown"
+}

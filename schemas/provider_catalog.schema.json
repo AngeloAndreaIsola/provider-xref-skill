@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProviderCatalog",
+  "description": "Knowledge base of all known providers and their properties. Versioned.",
+  "type": "object",
+  "required": ["catalog_version", "last_verified", "sources", "providers"],
+  "properties": {
+    "catalog_version": {"type": "integer", "description": "Incremented on structural changes.", "const": 1},
+    "last_verified": {"type": "string", "format": "date-time"},
+    "sources": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "URLs or descriptions of data sources"
+    },
+    "scoring_weights": {
+      "type": "object",
+      "properties": {
+        "quota_value": {"type": "number", "default": 10},
+        "usefulness": {"type": "number", "default": 10},
+        "downstream_capabilities": {"type": "number", "default": 10},
+        "compatibility": {"type": "number", "default": 10},
+        "account_freshness": {"type": "number", "default": 5},
+        "registration_cost": {"type": "number", "default": -5},
+        "verification_cost": {"type": "number", "default": -5},
+        "policy_risk": {"type": "number", "default": -10}
+      }
+    },
+    "providers": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Provider"}
+    }
+  },
+  "definitions": {
+    "Provider": {
+      "type": "object",
+      "required": ["id", "name", "auth_type", "signup_url", "free_tier"],
+      "properties": {
+        "id": {"type": "string", "description": "Unique provider identifier, e.g. 'deepseek'"},
+        "name": {"type": "string", "description": "Display name, e.g. 'DeepSeek'"},
+        "category": {"type": "string", "enum": ["llm", "model_host", "tool_platform", "oauth_idp", "cloud", "other"]},
+        "auth_type": {
+          "type": "string",
+          "enum": ["oauth", "api_key", "password", "pat", "unknown"]
+        },
+        "signup_url": {"type": "string", "format": "uri"},
+        "login_url": {"type": "string", "format": "uri"},
+        "dashboard_url": {"type": "string", "format": "uri"},
+        "free_tier": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "quota": {"type": "string", "description": "e.g. '1M tokens/day', '$300 credits'"},
+            "type": {"type": "string", "enum": ["daily", "monthly", "credit", "sign_up_credit", "uncapped", "keyless", "none"]},
+            "notes": {"type": "string"}
+          }
+        },
+        "identity_requirements": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["email", "google", "github", "phone", "microsoft", "apple", "other", "none"]},
+          "description": "What identities are needed to register"
+        },
+        "identity_relationships": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "e.g. ['google', 'github'] — identity providers this provider's auth can cascade from"
+        },
+        "omniroute_support": {
+          "type": "object",
+          "properties": {
+            "supported": {"type": "boolean"},
+            "type": {"type": "string", "enum": ["direct", "proxy", "unsupported"]},
+            "notes": {"type": "string"}
+          }
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "multiple_accounts": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+            "duplicate_account_policy": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+            "automation_allowed": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+            "third_party_proxy_allowed": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+            "phone_reuse_allowed": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]}
+          }
+        },
+        "signup_difficulty": {
+          "type": "string",
+          "enum": ["trivial", "easy", "moderate", "hard", "unknown"],
+          "default": "unknown"
+        },
+        "verification_requirements": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["email", "phone", "captcha", "id_document", "manual_review", "none"]}
+        },
+        "tos_notes": {
+          "type": "object",
+          "properties": {
+            "personal_use_only": {"type": "boolean"},
+            "proxy_clause": {"type": "boolean"},
+            "multi_account_clause": {"type": "boolean"},
+            "notes": {"type": "string"}
+          }
+        },
+        "upstream_identity": {
+          "type": ["string", "null"],
+          "description": "If this provider is itself an identity provider, e.g. 'google' or 'github'"
+        },
+        "downstream_identities": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Identity IDs that can be created from this provider"
+        },
+        "cascades_to": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Provider IDs that can be unlocked by this provider"
+        },
+        "tier_value": {"type": "number", "default": 5, "description": "0-100, higher = more valuable free tier"},
+        "usefulness": {"type": "number", "default": 5, "description": "0-100, how useful the free tier is to the user"},
+        "compatibility": {"type": "number", "default": 5, "description": "0-100, how well it works with OmniRoute"},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

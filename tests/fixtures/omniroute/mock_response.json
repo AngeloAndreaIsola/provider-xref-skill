@@ -1,0 +1,13 @@
+{
+  "connections": [
+    {
+      "id": "conn_001",
+      "provider": "openai",
+      "authType": "apiKey",
+      "name": "user@example.com",
+      "createdAt": "2025-01-06T00:00:00Z",
+      "enabled": true
+    }
+  ],
+  "total": 1
+}

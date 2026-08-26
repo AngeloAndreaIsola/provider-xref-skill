@@ -1,0 +1,50 @@
+{
+  "history_version": 1,
+  "entries": [
+    {
+      "id": "reg_001",
+      "provider_id": "deepseek",
+      "identity_id": "identity_email_andrea_me",
+      "method": "api_key",
+      "started_at": "2024-06-01T00:00:00Z",
+      "completed_at": "2024-06-01T00:05:00Z",
+      "status": "completed",
+      "steps": {
+        "registration": "completed",
+        "email_verification": "completed",
+        "api_key_extraction": "completed",
+        "omniroute_connection": "completed",
+        "onepassword_storage": "completed"
+      },
+      "credential_created": true,
+      "credential_ref": {"backend": "1password", "vault": "Personal", "item_id": "deepseek-apikey", "field": "credential"},
+      "omniroute_status": "connected",
+      "omniroute_account_id": "deepseek",
+      "onepassword_status": "stored",
+      "policy_status": "unknown",
+      "metadata": {"note": "Initial registration during system setup"}
+    },
+    {
+      "id": "reg_002",
+      "provider_id": "freemodel-dev",
+      "identity_id": "identity_email_andrea_outlook",
+      "method": "api_key",
+      "started_at": "2024-06-01T00:00:00Z",
+      "completed_at": "2024-06-01T00:05:00Z",
+      "status": "failed",
+      "steps": {
+        "registration": "completed",
+        "email_verification": "completed",
+        "api_key_extraction": "completed",
+        "omniroute_connection": "failed",
+        "onepassword_storage": "completed"
+      },
+      "credential_created": true,
+      "omniroute_status": "failed",
+      "onepassword_status": "stored",
+      "policy_status": "unknown",
+      "failure_reason": "OmniRoute connection failed — provider inactive",
+      "metadata": {"note": "Account created but OmniRoute connection failed"}
+    }
+  ]
+}

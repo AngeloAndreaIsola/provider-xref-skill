@@ -1,0 +1,3753 @@
+{
+  "catalog_version": 1,
+  "last_verified": "2026-08-26T00:00:00Z",
+  "sources": [
+    "https://github.com/Andyyyy64/whichllm",
+    "https://omniroute.dev",
+    "Manual provider research"
+  ],
+  "scoring_weights": {
+    "quota_value": 15,
+    "usefulness": 15,
+    "downstream_capabilities": 30,
+    "compatibility": 15,
+    "account_freshness": 5,
+    "registration_cost": -10,
+    "verification_cost": -5,
+    "policy_risk": -10
+  },
+  "providers": [
+    {
+      "id": "codex",
+      "name": "OpenAI Codex",
+      "category": "llm",
+      "auth_type": "oauth",
+      "signup_url": "https://platform.openai.com/signup",
+      "login_url": "https://platform.openai.com/login",
+      "dashboard_url": "https://platform.openai.com/settings/organization/api-keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$10-20 credit for new accounts (region-dependent)",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [
+        "google",
+        "github"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "OAuth connector"
+      },
+      "policy": {
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "restricted",
+        "automation_allowed": "disallowed",
+        "third_party_proxy_allowed": "disallowed",
+        "phone_reuse_allowed": "disallowed"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": true,
+        "multi_account_clause": true,
+        "notes": "OpenAI ToS restricts sharing API keys and automated account creation"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 65,
+      "usefulness": 85,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "claude",
+      "name": "Anthropic Claude",
+      "category": "llm",
+      "auth_type": "oauth",
+      "signup_url": "https://claude.ai/signup",
+      "login_url": "https://claude.ai/login",
+      "dashboard_url": "https://claude.ai/settings",
+      "free_tier": {
+        "enabled": true,
+        "quota": "20 req/day Claude 4 Sonnet",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "OAuth connector via Claude Code"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": true,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 50,
+      "usefulness": 70,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "cline",
+      "name": "Cline",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "https://cline.rodney.fm",
+      "login_url": "https://cline.rodney.fm/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free for open-source & commercial use",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email",
+        "github"
+      ],
+      "identity_relationships": [
+        "google",
+        "github"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "allowed",
+        "duplicate_account_policy": "allowed",
+        "automation_allowed": "allowed",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "allowed"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 20,
+      "usefulness": 40,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "https://cursor.sh",
+      "login_url": "https://cursor.sh/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier with limited usage",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email",
+        "github"
+      ],
+      "identity_relationships": [
+        "google",
+        "github"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "restricted",
+        "automation_allowed": "disallowed",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": true,
+        "proxy_clause": true,
+        "multi_account_clause": true,
+        "notes": "Pro-only for business use"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 60,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "kilocode",
+      "name": "KiloCode",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "https://kilocode.com",
+      "login_url": "https://kilocode.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email",
+        "github"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "allowed",
+        "duplicate_account_policy": "allowed",
+        "automation_allowed": "allowed",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "allowed"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 20,
+      "usefulness": 35,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "grokcli",
+      "name": "Grok CLI",
+      "category": "llm",
+      "auth_type": "oauth",
+      "signup_url": "https://x.ai",
+      "login_url": "https://x.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Limited free usage",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email",
+        "phone"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "hard",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": true,
+        "proxy_clause": true,
+        "multi_account_clause": true,
+        "notes": "Requires X/Twitter account verification"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 40,
+      "usefulness": 60,
+      "compatibility": 75,
+      "metadata": {}
+    },
+    {
+      "id": "antigravity",
+      "name": "Antigravity",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "https://antigravity.ai",
+      "login_url": "https://antigravity.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier with agent access",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email",
+        "google",
+        "github"
+      ],
+      "identity_relationships": [
+        "google",
+        "github"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "allowed",
+        "duplicate_account_policy": "allowed",
+        "automation_allowed": "allowed",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "allowed"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 70,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "kiro",
+      "name": "Amazon Kiro",
+      "category": "llm",
+      "auth_type": "oauth",
+      "signup_url": "https://kiro.dev",
+      "login_url": "https://kiro.dev/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "50 credits/month",
+        "type": "monthly"
+      },
+      "identity_requirements": [
+        "google",
+        "github"
+      ],
+      "identity_relationships": [
+        "google",
+        "github"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "disallowed",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Third-party proxy/harness restriction noted in catalog"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 60,
+      "usefulness": 80,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://www.deepseek.com",
+      "login_url": "https://www.deepseek.com/login",
+      "dashboard_url": "https://www.deepseek.com/admin",
+      "free_tier": {
+        "enabled": true,
+        "quota": "10M tokens/day free",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Groq API blocked on this network (error 1010)"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 80,
+      "usefulness": 85,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://aistudio.google.com",
+      "login_url": "https://aistudio.google.com/signin",
+      "dashboard_url": "https://aistudio.google.com/app/apikey",
+      "free_tier": {
+        "enabled": true,
+        "quota": "1M tokens/day free",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email",
+        "google"
+      ],
+      "identity_relationships": [
+        "google"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": true,
+        "proxy_clause": true,
+        "multi_account_clause": true,
+        "notes": "Personal use free tier"
+      },
+      "upstream_identity": "google",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 75,
+      "usefulness": 80,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral AI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://mistral.ai",
+      "login_url": "https://mistral.ai/login",
+      "dashboard_url": "https://mistral.ai/app/organizations",
+      "free_tier": {
+        "enabled": true,
+        "quota": "100K tokens/day free (new accounts)",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 55,
+      "usefulness": 60,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://groq.com",
+      "login_url": "https://console.groq.com/login",
+      "dashboard_url": "https://console.groq.com/settings/keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "6K tokens/sec, 30K tokens/day free",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 45,
+      "usefulness": 75,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "nvidia",
+      "name": "NVIDIA NIM",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://build.nvidia.com",
+      "login_url": "https://catalog.ngc.nvidia.com/login",
+      "dashboard_url": "https://catalog.ngc.nvidia.com/orgs/user/~/apikeys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "1K req/day free",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 40,
+      "usefulness": 55,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "huggingface",
+      "name": "Hugging Face",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://huggingface.co",
+      "login_url": "https://huggingface.co/login",
+      "dashboard_url": "https://huggingface.co/settings/tokens",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free inference, 30K tokens/month",
+        "type": "monthly"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "allowed",
+        "duplicate_account_policy": "allowed",
+        "automation_allowed": "restricted",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 60,
+      "usefulness": 65,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://openrouter.ai",
+      "login_url": "https://openrouter.ai/login",
+      "dashboard_url": "https://openrouter.ai/keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free-tier model access, pay-per-use",
+        "type": "keyless"
+      },
+      "identity_requirements": [
+        "email",
+        "github"
+      ],
+      "identity_relationships": [
+        "google",
+        "github"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "allowed",
+        "duplicate_account_policy": "allowed",
+        "automation_allowed": "restricted",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 50,
+      "usefulness": 75,
+      "compatibility": 100,
+      "metadata": {}
+    },
+    {
+      "id": "nous-research",
+      "name": "Nous Research",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://platform.nousresearch.com",
+      "login_url": "https://platform.nousresearch.com/login",
+      "dashboard_url": "https://platform.nousresearch.com/api-keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier available",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 40,
+      "usefulness": 50,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "bazaarlink",
+      "name": "BazaarLink",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://bazaarlink.ai",
+      "login_url": "https://bazaarlink.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free access to models",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 35,
+      "usefulness": 40,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "agentrouter",
+      "name": "AgentRouter",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://agentrouter.io",
+      "login_url": "https://agentrouter.io/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "allowed",
+        "duplicate_account_policy": "allowed",
+        "automation_allowed": "allowed",
+        "third_party_proxy_allowed": "allowed",
+        "phone_reuse_allowed": "allowed"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 50,
+      "compatibility": 90,
+      "metadata": {}
+    },
+    {
+      "id": "cohere",
+      "name": "Cohere",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://cohere.com",
+      "login_url": "https://dashboard.cohere.com/login",
+      "dashboard_url": "https://dashboard.cohere.com/api-keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Monthly free tier",
+        "type": "monthly"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 40,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "bytez",
+      "name": "Bytez",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://bytez.com",
+      "login_url": "https://bytez.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 25,
+      "compatibility": 75,
+      "metadata": {}
+    },
+    {
+      "id": "baseten",
+      "name": "Baseten",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://baseten.co",
+      "login_url": "https://dashboard.baseten.co/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$5 free credit monthly",
+        "type": "monthly"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 35,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "bluesminds",
+      "name": "Blue's Mind's",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://bluesminds.ai",
+      "login_url": "https://bluesminds.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 20,
+      "usefulness": 20,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "fireworks",
+      "name": "Fireworks AI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://app.fireworks.ai",
+      "login_url": "https://app.fireworks.ai/settings/users/api-keys",
+      "dashboard_url": "https://app.fireworks.ai/settings/users/api-keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$10 credit",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 55,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "deepinfra",
+      "name": "DeepInfra",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://deepinfra.com",
+      "login_url": "https://deepinfra.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "friendliai",
+      "name": "FriendliAI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://friendli.ai",
+      "login_url": "https://friendli.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "featherless-ai",
+      "name": "Featherless AI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://featherless.ai",
+      "login_url": "https://featherless.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "hyperbolic",
+      "name": "Hyperbolic",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://hyperbolic.xyz",
+      "login_url": "https://hyperbolic.xyz/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "inference-net",
+      "name": "Inference.net",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://inference.net",
+      "login_url": "https://inference.net/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "llm7",
+      "name": "LLM7",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://llm7.io",
+      "login_url": "https://llm7.io/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "longcat",
+      "name": "Longcat",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://longcat.dev",
+      "login_url": "https://longcat.dev/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 20,
+      "usefulness": 25,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "modelscope",
+      "name": "ModelScope",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://www.modelscope.cn",
+      "login_url": "https://www.modelscope.cn/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Chinese service, may require phone verification"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 40,
+      "usefulness": 50,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "morph",
+      "name": "Morph",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://morph.in",
+      "login_url": "https://morph.in/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "nebius",
+      "name": "Nebius",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://nebius.ai",
+      "login_url": "https://nebius.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$5 free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 35,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "novita",
+      "name": "Novita AI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://novita.ai",
+      "login_url": "https://novita.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "nscale",
+      "name": "NScale",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://nscale.ai",
+      "login_url": "https://nscale.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free tier",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 20,
+      "usefulness": 25,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "sambanova",
+      "name": "SambaNova",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://sambanova.ai",
+      "login_url": "https://api.sambanova.ai/v1/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 35,
+      "usefulness": 40,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "siliconflow",
+      "name": "Silicon Flow",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://siliconflow.cn",
+      "login_url": "https://siliconflow.cn/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Chinese service"
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 35,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "scaleway",
+      "name": "Scaleway",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://scaleway.com",
+      "login_url": "https://console.scaleway.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "hard",
+      "verification_requirements": [
+        "email",
+        "phone",
+        "id_document"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 35,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "freetheai",
+      "name": "FreeTheAI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://freetheai.com",
+      "login_url": "https://freetheai.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 80,
+      "metadata": {}
+    },
+    {
+      "id": "freemodel-dev",
+      "name": "FreeModel.dev",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://freemodel.dev",
+      "login_url": "https://freemodel.dev/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$300 credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 40,
+      "usefulness": 35,
+      "compatibility": 85,
+      "metadata": {}
+    },
+    {
+      "id": "cerebras",
+      "name": "Cerebras",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://www.cerebras.ai",
+      "login_url": "https://cloud.cerebras.ai/login",
+      "dashboard_url": "https://cloud.cerebras.ai/api-keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "1M tokens/day",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": false,
+        "type": "unsupported"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 85,
+      "usefulness": 80,
+      "compatibility": 65,
+      "metadata": {}
+    },
+    {
+      "id": "pioneer",
+      "name": "Pioneer",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://pioneer.ai",
+      "login_url": "https://pioneer.ai/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$75 credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": false,
+        "type": "unsupported"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 60,
+      "usefulness": 40,
+      "compatibility": 55,
+      "metadata": {}
+    },
+    {
+      "id": "predibase",
+      "name": "Predibase",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://predibase.com",
+      "login_url": "https://predibase.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$25 trial",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": false,
+        "type": "unsupported"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 20,
+      "compatibility": 55,
+      "metadata": {}
+    },
+    {
+      "id": "openvecta",
+      "name": "OpenVecta",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://openvecta.com",
+      "login_url": "https://openvecta.com/login",
+      "dashboard_url": "",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free credits",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": false,
+        "type": "unsupported"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "easy",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 15,
+      "compatibility": 50,
+      "metadata": {}
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "category": "oauth_idp",
+      "auth_type": "oauth",
+      "signup_url": "https://accounts.google.com/signup",
+      "login_url": "https://accounts.google.com/login",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free Google account with Gmail, Drive, etc.",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email",
+        "phone"
+      ],
+      "identity_relationships": [],
+      "upstream_identity": "google",
+      "downstream_identities": [
+        "google"
+      ],
+      "cascades_to": [
+        "gemini",
+        "kiro",
+        "antigravity",
+        "github",
+        "claude",
+        "cursor",
+        "cline",
+        "kilocode"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "restricted",
+        "automation_allowed": "disallowed",
+        "third_party_proxy_allowed": "disallowed",
+        "phone_reuse_allowed": "disallowed"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": true,
+        "multi_account_clause": true,
+        "notes": "Google restricts multiple account creation; phone verification required"
+      },
+      "tier_value": 70,
+      "usefulness": 95,
+      "compatibility": 100
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "category": "oauth_idp",
+      "auth_type": "oauth",
+      "signup_url": "https://github.com/join",
+      "login_url": "https://github.com/login",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free public/private repos, Codespaces, Packages",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email",
+        "google"
+      ],
+      "identity_relationships": [
+        "google"
+      ],
+      "upstream_identity": "github",
+      "downstream_identities": [
+        "github"
+      ],
+      "cascades_to": [
+        "codex",
+        "cursor",
+        "cline",
+        "kilocode",
+        "antigravity",
+        "openrouter",
+        "agentrouter"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "restricted",
+        "automation_allowed": "disallowed",
+        "third_party_proxy_allowed": "disallowed",
+        "phone_reuse_allowed": "disallowed"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": true,
+        "notes": "GitHub restricts multiple account creation; phone/risk limits apply"
+      },
+      "tier_value": 40,
+      "usefulness": 90,
+      "compatibility": 95
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "category": "oauth_idp",
+      "auth_type": "oauth",
+      "signup_url": "https://signup.live.com",
+      "login_url": "https://login.live.com",
+      "free_tier": {
+        "enabled": true,
+        "quota": "Free Microsoft account",
+        "type": "uncapped"
+      },
+      "identity_requirements": [
+        "email",
+        "phone"
+      ],
+      "identity_relationships": [],
+      "upstream_identity": "microsoft",
+      "downstream_identities": [
+        "microsoft"
+      ],
+      "cascades_to": [
+        "azure"
+      ],
+      "omniroute_support": {
+        "supported": true,
+        "type": "proxy"
+      },
+      "policy": {
+        "multiple_accounts": "restricted",
+        "duplicate_account_policy": "restricted",
+        "automation_allowed": "disallowed",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "disallowed"
+      },
+      "signup_difficulty": "hard",
+      "verification_requirements": [
+        "email",
+        "phone"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": true,
+        "multi_account_clause": true,
+        "notes": "Microsoft restricts multiple account creation"
+      },
+      "tier_value": 50,
+      "usefulness": 60,
+      "compatibility": 85
+    },
+    {
+      "id": "azure",
+      "name": "Azure OpenAI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://azure.microsoft.com",
+      "login_url": "https://portal.azure.com",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$200 credit for 30 days",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": [
+        "email",
+        "microsoft"
+      ],
+      "identity_relationships": [
+        "microsoft"
+      ],
+      "upstream_identity": "microsoft",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "proxy"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "hard",
+      "verification_requirements": [
+        "email",
+        "phone",
+        "id_document"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false
+      },
+      "tier_value": 70,
+      "usefulness": 80,
+      "compatibility": 90
+    },
+    {
+      "id": "agnes",
+      "name": "Agnes",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Small-model inference provider. Discovered in OmniRoute."
+      }
+    },
+    {
+      "id": "aimlapi",
+      "name": "AIMLAPI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://docs.aimlapi.com",
+      "login_url": "https://aimlapi.com",
+      "dashboard_url": "https://aimlapi.com/billing",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Multi-model API provider."
+      }
+    },
+    {
+      "id": "ainative",
+      "name": "AINative",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Discovered in OmniRoute."
+      }
+    },
+    {
+      "id": "aion",
+      "name": "Aion",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Discovered in OmniRoute."
+      }
+    },
+    {
+      "id": "blackbox",
+      "name": "Blackbox",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://www.blackbox.ai",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "AI coding assistant with API."
+      }
+    },
+    {
+      "id": "charm-hyper",
+      "name": "Charm Hyper",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Charm (formerly Bashly) hyper provider."
+      }
+    },
+    {
+      "id": "claude-web",
+      "name": "Anthropic Claude (Web)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": "claude",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Web-based Claude connection in OmniRoute. Not the API."
+      }
+    },
+    {
+      "id": "codex-cloud",
+      "name": "OpenAI Codex (Cloud)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": "codex",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Cloud Codex connection in OmniRoute."
+      }
+    },
+    {
+      "id": "deepseek-web",
+      "name": "DeepSeek (Web)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": "deepseek",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Web-based DeepSeek connection in OmniRoute."
+      }
+    },
+    {
+      "id": "devin",
+      "name": "Devin",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "https://devin.ai",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "AI agent by Cognition."
+      }
+    },
+    {
+      "id": "doubao-web",
+      "name": "Doubao (Web)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "ByteDance Doubao web connection."
+      }
+    },
+    {
+      "id": "jules",
+      "name": "Jules",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Google Jules agent. Discovered in OmniRoute."
+      }
+    },
+    {
+      "id": "lmarena",
+      "name": "LMArena",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Chatbot Arena / LMArena provider."
+      }
+    },
+    {
+      "id": "mimocode",
+      "name": "MimoCode",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Discovered in OmniRoute."
+      }
+    },
+    {
+      "id": "muse-spark-web",
+      "name": "Muse Spark (Web)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Web-based connection in OmniRoute."
+      }
+    },
+    {
+      "id": "ollama-cloud",
+      "name": "Ollama Cloud",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Ollama-hosted cloud service."
+      }
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "AI coding agent."
+      }
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://perplexity.ai",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "AI search/chat provider."
+      }
+    },
+    {
+      "id": "qoder",
+      "name": "Qoder",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "AI coding agent."
+      }
+    },
+    {
+      "id": "qwen-cloud",
+      "name": "Qwen (Cloud)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Alibaba Qwen cloud connection."
+      }
+    },
+    {
+      "id": "qwen-web",
+      "name": "Qwen (Web)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Alibaba Qwen web connection."
+      }
+    },
+    {
+      "id": "sarvam",
+      "name": "Sarvam",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Indian AI company models."
+      }
+    },
+    {
+      "id": "v0-vercel",
+      "name": "v0 (Vercel)",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Vercel v0 AI coding tool."
+      }
+    },
+    {
+      "id": "vercel-ai-gateway",
+      "name": "Vercel AI Gateway",
+      "category": "tool_platform",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Vercel AI gateway proxy."
+      }
+    },
+    {
+      "id": "zai",
+      "name": "Zai",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Discovered in OmniRoute."
+      }
+    },
+    {
+      "id": "devin-cli",
+      "name": "Devin CLI",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": "devin",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "OAuth-based Devin CLI connection."
+      }
+    },
+    {
+      "id": "grok-cli",
+      "name": "Grok CLI",
+      "category": "llm",
+      "auth_type": "oauth",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": "grokcli",
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "OAuth-based Grok CLI connection. Note: OmniRoute id is 'grok-cli' (with hyphen)."
+      }
+    },
+    {
+      "id": "kimi-coding",
+      "name": "Kimi Coding",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "https://kimi.ai",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Kimi coding assistant OAuth connection."
+      }
+    },
+    {
+      "id": "ollama-local",
+      "name": "Ollama (Local)",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "unknown",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "Local Ollama instance. Not a remote API key provider."
+      }
+    },
+    {
+      "id": "trae",
+      "name": "Trae",
+      "category": "tool_platform",
+      "auth_type": "oauth",
+      "signup_url": "https://www.trae.ai",
+      "login_url": "unknown",
+      "dashboard_url": "unknown",
+      "free_tier": {
+        "enabled": true,
+        "quota": "unknown",
+        "type": "none"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Observed in OmniRoute connections"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 discovered via OmniRoute observation only. Conservative default: do not automate."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 25,
+      "usefulness": 30,
+      "compatibility": 50,
+      "metadata": {
+        "discovered_via": "omniroute_sync",
+        "discovery_notes": "AI coding IDE by AntGroup."
+      }
+    }
+  ]
+}

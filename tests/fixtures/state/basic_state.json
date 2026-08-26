@@ -1,0 +1,138 @@
+{
+  "schema_version": "3.0",
+  "last_updated": "2025-01-15T12:00:00Z",
+  "identities": [
+    {
+      "id": "ident_email_1",
+      "type": "email",
+      "value": "user@example.com",
+      "label": "Primary email",
+      "status": "available",
+      "created_at": "2025-01-01T00:00:00Z",
+      "last_seen": "2025-01-15T12:00:00Z",
+      "verification": {"email_verified": true}
+    },
+    {
+      "id": "ident_email_2",
+      "type": "email",
+      "value": "alt@example.com",
+      "label": "Alt email",
+      "status": "available",
+      "created_at": "2025-01-02T00:00:00Z",
+      "last_seen": "2025-01-15T12:00:00Z",
+      "verification": {"email_verified": true}
+    },
+    {
+      "id": "ident_phone_1",
+      "type": "phone",
+      "value": "+15551234567",
+      "label": "Primary phone",
+      "status": "available",
+      "created_at": "2025-01-03T00:00:00Z",
+      "last_seen": "2025-01-15T12:00:00Z",
+      "verification": {"sms_verified": true}
+    }
+  ],
+  "external_accounts": [
+    {
+      "id": "ea_gmail_1",
+      "provider_id": "gmail",
+      "identity_id": "ident_email_1",
+      "status": "active",
+      "created_at": "2025-01-04T00:00:00Z",
+      "last_verified": "2025-01-15T00:00:00Z",
+      "metadata": {}
+    },
+    {
+      "id": "ea_github_1",
+      "provider_id": "github",
+      "identity_id": "ident_email_1",
+      "status": "active",
+      "created_at": "2025-01-05T00:00:00Z",
+      "last_verified": "2025-01-15T00:00:00Z",
+      "metadata": {}
+    }
+  ],
+  "provider_accounts": [
+    {
+      "id": "pa_openai_1",
+      "provider_id": "openai",
+      "identity_id": "ident_email_1",
+      "external_account_id": null,
+      "status": "connected",
+      "auth_type": "api_key",
+      "credential_ref": {
+        "backend": "1password",
+        "vault": "Personal",
+        "item_id": "item_openai",
+        "field": "credential"
+      },
+      "omniroute_connected": true,
+      "omniroute_account_id": "conn_001",
+      "created_at": "2025-01-06T00:00:00Z",
+      "last_verified": "2025-01-15T00:00:00Z",
+      "metadata": {}
+    },
+    {
+      "id": "pa_anthropic_1",
+      "provider_id": "anthropic",
+      "identity_id": "ident_email_2",
+      "external_account_id": null,
+      "status": "connected",
+      "auth_type": "api_key",
+      "credential_ref": {
+        "backend": "1password",
+        "vault": "Personal",
+        "item_id": "item_anthropic",
+        "field": "credential"
+      },
+      "omniroute_connected": true,
+      "omniroute_account_id": "conn_002",
+      "created_at": "2025-01-07T00:00:00Z",
+      "last_verified": "2025-01-15T00:00:00Z",
+      "metadata": {}
+    },
+    {
+      "id": "pa_groq_1",
+      "provider_id": "groq",
+      "identity_id": null,
+      "external_account_id": null,
+      "status": "connected",
+      "auth_type": "api_key",
+      "credential_ref": {
+        "backend": "1password",
+        "vault": "Work",
+        "item_id": "item_groq",
+        "field": "credential"
+      },
+      "omniroute_connected": true,
+      "omniroute_account_id": "conn_003",
+      "created_at": "2025-01-08T00:00:00Z",
+      "last_verified": "2025-01-15T00:00:00Z",
+      "metadata": {}
+    }
+  ],
+  "credentials": [
+    {
+      "id": "cred_1",
+      "type": "api_key",
+      "backend": "1password",
+      "vault": "Personal",
+      "item_id": "item_openai",
+      "field": "credential",
+      "provider_account_id": "pa_openai_1",
+      "status": "active",
+      "created_at": "2025-01-06T00:00:00Z"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap_1",
+      "provider_id": "openai",
+      "identity_id": "ident_email_1",
+      "type": "api_key",
+      "status": "active",
+      "created_at": "2025-01-06T00:00:00Z"
+    }
+  ]
+}

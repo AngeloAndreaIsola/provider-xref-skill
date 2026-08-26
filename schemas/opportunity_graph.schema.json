@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpportunityGraph",
+  "description": "A dependency graph of registration opportunities, e.g. from a new phone number.",
+  "type": "object",
+  "required": ["id", "trigger_event", "created_at", "nodes", "edges"],
+  "properties": {
+    "id": {"type": "string"},
+    "trigger_event": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string", "enum": ["identity", "provider", "identity_provider"]},
+          "provider_id": {"type": "string"},
+          "identity_type": {"type": "string", "enum": ["google", "github", "microsoft", "email", "phone", "apple"]},
+          "label": {"type": "string"},
+          "score": {"type": "number"},
+          "policy_status": {"type": "string", "enum": ["allowed", "disallowed", "restricted", "unknown"]},
+          "downstream_count": {"type": "integer"},
+          "confidence": {"type": "number"},
+          "requirements": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "relationship"],
+        "properties": {
+          "source": {"type": "string", "description": "Source node ID"},
+          "target": {"type": "string", "description": "Target node ID"},
+          "relationship": {"type": "string", "enum": ["enables", "requires", "unlocks", "verifies"]}
+        }
+      }
+    },
+    "ranked_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {"type": "string"},
+          "description": {"type": "string"},
+          "unlocks": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}
