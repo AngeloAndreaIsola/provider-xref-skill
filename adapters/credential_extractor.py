@@ -363,6 +363,38 @@ def _build_result(value: str, rule: ExtractionRule, snapshot: PageSnapshot,
 
 
 # ── Credential lifecycle helpers ─────────────────────────────────────────
+#
+# Secret boundary architecture (MUST be enforced):
+#
+#   generated credential
+#          │
+#          ├──> browser input (form fill via browser_type)
+#          │
+#          └──> 1Password (via create_login / op CLI)
+#                 │
+#                 └──> credential_ref (op://vault/item_id/field)
+#                          │
+#                          └──> state / history / logs
+#                               metadata ONLY — no raw secret
+#
+#   API key
+#     │
+#     ├──> transient browser extraction (browser_snapshot / get_text)
+#     │
+#     └──> 1Password (via create_login / op CLI)
+#            │
+#            └──> credential_ref
+#
+# The raw secret flows ONLY through the function parameter `value` on
+# `credential_to_onepassword()`. After the 1Password `op` CLI call
+# completes, the value is discarded — only the ref dict is returned.
+#
+# ExtractionResult.to_debug_dict() and to_result() NEVER include .value.
+# The .value attribute is only consumed by credential_to_onepassword().
+# retrieve_credential_value() returns the secret ONLY to the operational
+# caller that actually needs it (e.g. OmniRoute connection bootstrap).
+#
+# ────────────────────────────────────────────────────────────────────────
 
 
 def credential_to_onepassword(value: str, item_title: str, vault: str,
