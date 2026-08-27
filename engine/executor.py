@@ -889,7 +889,13 @@ def _invoke_workflow(workflow, provider: dict, request: dict, dry_run: bool = Tr
     # dry_run=True   -> mode="dry_run" (safe, no external mutations)
     # dry_run=False  -> mode="interactive" (actual registration)
     mode = "dry_run" if dry_run else "interactive"
-    result = workflow.register(opportunity, mode=mode)
+    # Workflows follow a staged pipeline: prepare → register → verify →
+    # acquire_credentials → connect_omniroute → finalize.  The executor
+    # drives the pipeline.  _invoke_workflow starts at prepare() so that
+    # identity selection and password generation happen here, and the
+    # prep dict is available for register().
+    prep = workflow.prepare(opportunity)
+    result = workflow.register(opportunity, prep, mode=mode)
 
     # Check for human checkpoint conditions
     if result.get("human_checkpoint_required"):

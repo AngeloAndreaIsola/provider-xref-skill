@@ -309,9 +309,8 @@ def create_login(title: str, username: str | None = None, password: str | None =
         tmp_path = f.name
 
     try:
-        args.extend(["--format", "json"])
         result = subprocess.run(
-            ["op", "item", "create"]
+            ["op", "item", "create", "--category", "LOGIN"]
             + (["--vault", vault] if vault else [])
             + (["--account", account] if account else [])
             + ["--format", "json"],

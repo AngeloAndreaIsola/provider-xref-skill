@@ -17,12 +17,19 @@
         "onepassword_storage": "completed"
       },
       "credential_created": true,
-      "credential_ref": {"backend": "1password", "vault": "Personal", "item_id": "deepseek-apikey", "field": "credential"},
+      "credential_ref": {
+        "backend": "1password",
+        "vault": "Personal",
+        "item_id": "deepseek-apikey",
+        "field": "credential"
+      },
       "omniroute_status": "connected",
       "omniroute_account_id": "deepseek",
       "onepassword_status": "stored",
       "policy_status": "unknown",
-      "metadata": {"note": "Initial registration during system setup"}
+      "metadata": {
+        "note": "Initial registration during system setup"
+      }
     },
     {
       "id": "reg_002",
@@ -43,8 +50,90 @@
       "omniroute_status": "failed",
       "onepassword_status": "stored",
       "policy_status": "unknown",
-      "failure_reason": "OmniRoute connection failed — provider inactive",
-      "metadata": {"note": "Account created but OmniRoute connection failed"}
+      "failure_reason": "OmniRoute connection failed \u2014 provider inactive",
+      "metadata": {
+        "note": "Account created but OmniRoute connection failed"
+      }
+    },
+    {
+      "id": "reg_054e77bf74be",
+      "provider_id": "fireworks",
+      "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "method": "api_key",
+      "trigger_event": "manual",
+      "started_at": "2026-08-26T21:34:23Z",
+      "completed_at": "2026-08-27T09:19:43Z",
+      "status": "cancelled",
+      "steps": {
+        "open_provider": "completed",
+        "fill_registration": "completed",
+        "submit_registration": "completed",
+        "login_to_dashboard": "pending"
+      },
+      "credential_created": false,
+      "credential_ref": null,
+      "omniroute_status": "not_attempted",
+      "omniroute_account_id": null,
+      "onepassword_status": "not_attempted",
+      "policy_status": "unknown",
+      "phone_used": null,
+      "email_used": null,
+      "failure_reason": "User declined: Fireworks requires payment method to unlock API key creation; account suspended due to CREDIT_DEPLETED",
+      "metadata": {
+        "provider_name": "Fireworks AI",
+        "checkpoint": "payment_method_required",
+        "user_decision": "declined_payment"
+      }
+    },
+    {
+      "id": "reg_588ad9762404",
+      "provider_id": "cloudflare-ai",
+      "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "method": "api_key",
+      "trigger_event": "manual",
+      "started_at": "2026-08-27T09:58:24Z",
+      "completed_at": "2026-08-27T10:01:00Z",
+      "status": "completed",
+      "steps": {
+        "open_provider": "completed",
+        "login_to_dashboard": "completed",
+        "create_api_key": "completed",
+        "extract_api_key": "completed",
+        "checkpoint": "completed",
+        "onepassword_storage": "completed",
+        "omniroute_connection": "completed",
+        "model_import": "completed",
+        "auto_sync": "completed",
+        "verification": "completed"
+      },
+      "credential_created": true,
+      "credential_ref": {
+        "backend": "1password",
+        "vault": "Private",
+        "item_id": "okp6wco72wqqtukcftwmm6azu4",
+        "item_title": "OmniRoute api.cloudflare.com Api Key",
+        "field": "password",
+        "reference": "op://Private/OmniRoute api.cloudflare.com Api Key/password"
+      },
+      "omniroute_status": "connected",
+      "omniroute_account_id": "1c344492-fb7d-4aa1-b350-48ee6f5e1b7b",
+      "onepassword_status": "stored",
+      "policy_status": "unknown",
+      "phone_used": null,
+      "email_used": "andrea.isola@me.com",
+      "failure_reason": null,
+      "metadata": {
+        "provider_name": "Cloudflare Workers AI",
+        "checkpoint": "registration_complete",
+        "account_id": "cc4d64893d39ca100a190532237258e7",
+        "connection_id": "1c344492-fb7d-4aa1-b350-48ee6f5e1b7b",
+        "test_status": "active",
+        "model_count": 26,
+        "api_key_permissions": ["Workers Scripts Write", "Workers KV Storage Write", "Account Settings Read", "Workers Tail Read", "Workers R2 Storage Write", "Pages Write", "Workers CI Write", "CF Agents Write", "Workers Observability Write", "Workers Containers Write"],
+        "token_name": "OmniRoute API Token",
+        "notes": "Cloudflare account created with generated password. Account ID discovered from dashboard URL. Password stored in 1Password. API token created with 'Edit Cloudflare Workers' template (includes Workers Scripts Write for AI invocation). Token saved to 1Password as 'OmniRoute api.cloudflare.com Api Key'. Connected to OmniRoute via API. 26 models imported automatically."
+      },
+      "account_id": "cc4d64893d39ca100a190532237258e7"
     }
   ]
 }

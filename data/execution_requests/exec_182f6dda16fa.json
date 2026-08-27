@@ -1,0 +1,99 @@
+{
+  "request_id": "exec_182f6dda16fa",
+  "created_at": "2026-08-26T21:30:50Z",
+  "operation": "register_provider",
+  "provider_id": "fireworks",
+  "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+  "external_account_id": null,
+  "policy_status": "unknown",
+  "plan": {
+    "provider_id": "fireworks",
+    "provider_name": "Fireworks AI",
+    "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+    "external_account_id": null,
+    "auth_type": "api_key",
+    "operation": "register_provider",
+    "policy_status": "unknown",
+    "can_automate": false,
+    "required_approvals": [
+      "user_approval"
+    ]
+  },
+  "required_approvals": [
+    "user_approval"
+  ],
+  "status": "cancelled",
+  "approval": {
+    "request_id": "exec_182f6dda16fa",
+    "approved_at": "2026-08-26T21:33:56Z",
+    "approved_by": "user",
+    "approval_scope": "register_provider:fireworks",
+    "policy_state_at_approval": {
+      "provider_id": "fireworks",
+      "policy_status": "unknown",
+      "can_automate": false
+    },
+    "plan_snapshot": {
+      "provider_id": "fireworks",
+      "provider_name": "Fireworks AI",
+      "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "external_account_id": null,
+      "auth_type": "api_key",
+      "operation": "register_provider",
+      "policy_status": "unknown",
+      "can_automate": false,
+      "required_approvals": [
+        "user_approval"
+      ]
+    },
+    "existing_omniroute_connection": null,
+    "approval_state_fingerprint": "22448e52cde1f0251d94c53728fe148787305b2afafeccca64381d7cdff2ee7c"
+  },
+  "preflight_result": {
+    "allowed": true,
+    "request_id": "exec_182f6dda16fa",
+    "checks": [
+      {
+        "name": "provider_exists",
+        "result": "PASS"
+      },
+      {
+        "name": "policy",
+        "result": "REQUIRES_REVIEW",
+        "reason": "Policy is unknown \u2014 overridden by explicit user approval"
+      },
+      {
+        "name": "identity",
+        "result": "PASS"
+      },
+      {
+        "name": "duplicate",
+        "result": "PASS"
+      },
+      {
+        "name": "omniroute_duplicate",
+        "result": "PASS"
+      },
+      {
+        "name": "approval",
+        "result": "PASS"
+      },
+      {
+        "name": "plan_stability",
+        "result": "PASS"
+      }
+    ],
+    "provider_id": "fireworks"
+  },
+  "workflow_result": {
+    "status": "checkpoint_failed",
+    "checkpoint_type": "payment_method_required",
+    "message": "Fireworks AI requires a payment method to create API keys. User declined to add payment method.",
+    "workflow": "APIKeyWorkflow",
+    "provider_id": "fireworks",
+    "registration_id": "reg_054e77bf74be"
+  },
+  "state_at_request": "22448e52cde1f0251d94c53728fe148787305b2afafeccca64381d7cdff2ee7c",
+  "version": 1,
+  "existing_omniroute_connection": null
+}

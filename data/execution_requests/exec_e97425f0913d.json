@@ -1,0 +1,74 @@
+{
+  "request_id": "exec_e97425f0913d",
+  "created_at": "2026-08-27T09:33:40Z",
+  "operation": "register_provider",
+  "provider_id": "cloudflare-ai",
+  "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+  "external_account_id": null,
+  "policy_status": "unknown",
+  "plan": {
+    "provider_id": "cloudflare-ai",
+    "provider_name": "Cloudflare Workers AI",
+    "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+    "external_account_id": null,
+    "auth_type": "api_key",
+    "operation": "register_provider",
+    "policy_status": "unknown",
+    "can_automate": false,
+    "required_approvals": [
+      "user_approval"
+    ]
+  },
+  "required_approvals": [
+    "user_approval"
+  ],
+  "status": "executing",
+  "approval": {
+    "request_id": "exec_e97425f0913d",
+    "approved_at": "2026-08-27T09:57:21Z",
+    "approved_by": "user",
+    "approval_scope": "register_provider:cloudflare-ai",
+    "policy_state_at_approval": {
+      "provider_id": "cloudflare-ai",
+      "policy_status": "unknown",
+      "can_automate": false
+    },
+    "plan_snapshot": {
+      "provider_id": "cloudflare-ai",
+      "provider_name": "Cloudflare Workers AI",
+      "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "external_account_id": null,
+      "auth_type": "api_key",
+      "operation": "register_provider",
+      "policy_status": "unknown",
+      "can_automate": false,
+      "required_approvals": [
+        "user_approval"
+      ]
+    },
+    "existing_omniroute_connection": null,
+    "approval_state_fingerprint": "fccbbd51b15db1ba5b93d16f01bc67121d4b8f8118950f8fe3fecd9eff7b4a9c"
+  },
+  "preflight_result": null,
+  "workflow_result": {
+    "status": "in_progress",
+    "workflow": "APIKeyWorkflow",
+    "provider_id": "cloudflare-ai",
+    "registration_id": "reg_588ad9762404",
+    "actions": [
+      {
+        "step": "open_provider",
+        "action": "navigate",
+        "url": "https://dash.cloudflare.com/login"
+      }
+    ],
+    "checkpoint": "open_provider",
+    "message": "Navigated to Cloudflare dashboard. User will authenticate directly in browser.",
+    "generated_password": "GENERATED_PASSWORD_NOT_STORED_IN_REQUEST",
+    "credentials_source": "user_will_authenticate_in_browser"
+  },
+  "state_at_request": "fccbbd51b15db1ba5b93d16f01bc67121d4b8f8118950f8fe3fecd9eff7b4a9c",
+  "version": 1,
+  "existing_omniroute_connection": null,
+  "registration_id": null
+}

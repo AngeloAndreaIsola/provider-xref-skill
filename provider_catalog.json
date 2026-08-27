@@ -3748,6 +3748,55 @@
         "discovered_via": "omniroute_sync",
         "discovery_notes": "AI coding IDE by AntGroup."
       }
+    },
+    {
+      "id": "cloudflare-ai",
+      "name": "Cloudflare Workers AI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://dash.cloudflare.com",
+      "login_url": "https://dash.cloudflare.com",
+      "dashboard_url": "https://dash.cloudflare.com",
+      "free_tier": {
+        "enabled": true,
+        "quota": "100,000 requests/day free",
+        "type": "daily"
+      },
+      "identity_requirements": [
+        "email"
+      ],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct",
+        "notes": "Requires API Token AND Account ID (found at dash.cloudflare.com). Bulk format: name|accountId|apiKey"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "unknown",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "unknown",
+      "verification_requirements": [
+        "email"
+      ],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown \u2014 provider not yet registered in Phase 8. Conservative default: do not automate until verified."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "tier_value": 30,
+      "usefulness": 50,
+      "compatibility": 70,
+      "metadata": {
+        "discovered_via": "omniroute_dashboard"
+      }
     }
   ]
 }

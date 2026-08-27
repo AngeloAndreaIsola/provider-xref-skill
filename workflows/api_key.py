@@ -122,13 +122,17 @@ class APIKeyWorkflow:
         provider_id = opportunity["provider"]
         provider = get_provider(load_catalog(), provider_id)
 
-        reg_id = record_attempt(
-            provider_id=provider_id,
-            method="api_key",
-            trigger_event="manual",
-            identity_id=prep.get("identity", {}).get("id"),
-            provider_catalog_provider=provider,
-        )
+        # In dry_run mode, do NOT mutate the registration history ledger.
+        # Only record the attempt when actually executing (interactive/automatic).
+        reg_id = None
+        if mode != "dry_run":
+            reg_id = record_attempt(
+                provider_id=provider_id,
+                method="api_key",
+                trigger_event="manual",
+                identity_id=(prep.get("identity") or {}).get("id"),
+                provider_catalog_provider=provider,
+            )
 
         catalog = load_catalog()
         provider = get_provider(catalog, provider_id)
@@ -137,7 +141,7 @@ class APIKeyWorkflow:
         if mode == "dry_run":
             actions = api_key_flow(provider_id, provider, identity)
             return {
-                "registration_id": reg_id,
+                "registration_id": None,
                 "mode": "dry_run",
                 "provider": provider["name"],
                 "actions": actions["actions"],
@@ -165,7 +169,7 @@ class APIKeyWorkflow:
             "provider": provider["name"],
             "provider_id": provider_id,
             "identity_used": identity["value"] if identity else None,
-            "password": prep["password"],
+            "password": "[REDACTED]",  # Password is managed by the runtime, never exposed
             "actions": actions["actions"],
             "steps_status": steps,
             "next_step": "open_provider",
@@ -194,8 +198,12 @@ class APIKeyWorkflow:
         identity = prep.get("identity")
 
         # Create 1Password item
+        # Naming convention: "OmniRoute [hostname] Api Key"
+        from urllib.parse import urlparse
+        login_url = provider.get("login_url") or provider.get("signup_url") or ""
+        hostname = urlparse(login_url).netloc if login_url else provider_id
         op_result = create_login(
-            title=f"{provider['name']} API Key",
+            title=f"OmniRoute {hostname} Api Key",
             username=identity["value"] if identity else None,
             password=api_key,
             url=provider.get("dashboard_url") or provider.get("login_url"),
