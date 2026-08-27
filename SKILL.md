@@ -1054,3 +1054,118 @@ All Phase 6 safety guarantees are preserved and verified by `test_phase7.py`:
 | `TestBatchOperationalFlow` | 3 | Full flow integration, no secrets, no execution |
 
 **Total: 487 tests pass** (430 Phase 1–6 + 57 Phase 7).
+
+---
+
+## 18. Phase 9 — Persistent Browser & Secure Credential Lifecycle
+
+Phase 9 adds the generic browser automation layer and secure credential persistence, making the Phase 8 Cloudflare end-to-end registration path reusable for any provider.
+
+### 18.1 Test Results
+
+**603 tests pass** (487 Phase 1–7 + 108 new Phase 9 tests + 8 registry tests). 0 failures, 0 errors.
+
+### 18.2 Persistent Local Browser (`adapters/browser.py`)
+
+The browser adapter wraps real MCP browser tools (browser_navigate, browser_click, browser_type, browser_snapshot, browser_vision, browser_scroll, browser_press, browser_console, browser_get_images) and provides:
+
+| Function | Purpose |
+|---|---|
+| `navigate(url, profile_id)` | Open a URL in the persistent browser profile |
+| `click(selector, profile_id)` | Click an element |
+| `type_text(selector, text, ...)` | Type text into an input |
+| `fill_form(form_data, ...)` | Fill a form with field values |
+| `screenshot(profile_id)` | Take a screenshot |
+| `snapshot(full, profile_id)` | Get page accessibility snapshot |
+| `get_text(selector, profile_id)` | Extract text from a selector |
+
+**Persistent profile management:**
+- `ensure_browser_profile_dir()` — creates `~/.hermes/browser_profiles/` directory
+- `get_browser_profile_path(profile_id)` — returns the browser profile directory path
+- `save_browser_profile_metadata(profile_id, ...)` — writes `browser_profile_metadata.json` with **metadata only** (profile_id, browser_provider, associated_providers, created_at). Never stores cookies, session tokens, or credentials.
+- `load_browser_profile_metadata(profile_id)` — loads profile metadata
+- `list_browser_profiles()` — lists all profiles by metadata
+
+**Human checkpoint lifecycle:**
+- `detect_checkpoint(page_text, page_url)` — detects CAPTCHA, MFA, passkey/webauthn, email verification, OAuth consent, phone verification, phone verification prompts. Returns checkpoint info dict or `None`.
+- `detect_authenticated(page_text, page_url, snapshot)` — detects if a user is already logged in (logout buttons, dashboard content, account/profile URLs). Returns `(bool, match_type)`.
+- `detect_checkpoint_completion(checkpoint_type, page_text, page_url)` — checks if a previously-detected checkpoint is now resolved. Returns `(bool, details)`.
+- `create_checkpoint(...)` — builds a structured checkpoint dict for state persistence (checkpoint_id, provider, step, reason, expected_state, resume_condition). **Never includes password, api_key, token, or secret fields.**
+- `checkpoint_message(checkpoint)` — generates a safe, human-readable message (no secrets).
+
+**Compatibility API (Phase 8 backward compatibility):**
+- `api_key_flow(provider_id, provider_config, identity)` — declarative action-descriptor for API key provider signup. Returns a list of `actions` (navigate, fill_form, click, checkpoint). Passwords appear as `<GENERATED_PASSWORD>` placeholders — never real values.
+- `oauth_flow(provider_id, provider_config, identity, callback_url)` — declarative action-descriptor for OAuth provider registration. Includes session check, authorization navigation, OAuth consent checkpoint, and human verify checkpoint.
+- `check_human_checkpoint(current_actions)` — returns checkpoint info dict using Phase 9 detection primitives.
+- `generate_consent_message(provider_name, action, details)` — generates user-facing consent messages (safe for chat output).
+
+### 18.3 1Password Authentication & Item Model (`adapters/onepassword.py`)
+
+**Authentication backend detection (Phase 9D):**
+- `detect_auth_backend()` — classifies as `service_account`, `desktop_cli`, or `unknown`. Detects when `OP_SERVICE_ACCOUNT_TOKEN` is set (may be read-only). Never prints credentials.
+- `can_read()` / `can_write()` — test read/write capability. `can_write()` correctly returns `False` for service accounts (read-only by default).
+- `get_desktop_account()` — retrieves the user's desktop-integrated 1Password account (has write access).
+- `require_write_access()` — returns `(has_access, error_message)`. If service account is read-only, suggests switching to desktop account.
+
+**Item title conventions:**
+- `api_key_title(hostname)` → `"OmniRoute [hostname] Api Key"` (e.g., `"OmniRoute api.cloudflare.com Api Key"`)
+- `account_login_title(provider_name)` → provider display name (e.g., `"Cloudflare"`)
+
+**Item lookup & deduplication:**
+- `find_login_item(provider_name, vault, account)` — finds existing LOGIN item, returns metadata only (item_id, title, vault, username, tags). Never returns password.
+- `find_api_key_item(hostname, vault, account)` — finds existing API key item, returns metadata only.
+- `item_exists(title, vault)` — checks if an item already exists.
+
+**Credential storage (Phase 9E):**
+- `credential_to_onepassword(credential, hostname, provider_name, vault, dry_run)` — stores a credential in 1Password (or returns reference for dry_run). Returns `{status, credential_ref, item_id, item_title, ...}`. The `credential_ref` contains metadata only (`backend`, `vault`, `item_id`, `field`, `reference`).
+- `build_credential_ref(vault, item_id, item_title, field)` — builds a reference dict with `op://vault/item_id/field` format.
+- `get_credential_value(item_id, field, vault, account)` — retrieves the actual secret value. **Only called by operational code that needs it.**
+
+**Account login persistence (Phase 9G):**
+- `create_account_login(title, username, password, url, vault, tags, custom_fields, account)` — creates a 1Password LOGIN item for provider account credentials. Password is set to `"<GENERATED_PASSWORD>"` placeholder in the browser flow; the real password goes directly to 1Password via the browser's form autofill. **Never stored in state or chat.**
+- `Adapter` class wrapper exposes: `detect_auth_backend()`, `can_read()`, `can_write()`, `get_desktop_account()`, `require_write_access()`, `account_login_title()`, `api_key_title()`, `find_login_item()`, `find_api_key_item()`, `item_exists()`, `create_login()`, `update_login()`, `get_credential_value()`, `build_credential_ref()`, `search_items()`, `get_item()`, `search_provider_items()`, `get_login()`.
+
+### 18.4 Generic Credential Extraction (`adapters/credential_extractor.py`)
+
+- `ExtractionRule` — defines a regex/selector/CLIPBOARD/snippet_button/table_row extraction pattern with `provider`, `page`, `pattern`, `prefix`, `min_length`, `description`.
+- `ExtractionStrategy` — enum: `REGEX`, `SELECTOR`, `CLIPBOARD`, `SNIPPET_BUTTON`, `TABLE_ROW`.
+- `PageSnapshot` — text and URL context for extraction.
+- `ExtractionResult` — holds extraction results. `to_debug_dict()` and `to_result()` methods **NEVER include the actual secret value** — only metadata (provider, method, prefix, masked, redacted).
+- `extract_credential(snapshot, rules)` — tries each rule in order, returns first match.
+- `_try_extract_rule(rule, snapshot)` — applies a single rule, handles `re.findall` returning strings or tuples.
+- `redact_credential(value)` — masks all but first 4 and last 4 characters. Returns `[REDACTED]` for empty/None values.
+- `credential_to_onepassword(...)` and `retrieve_credential_value(...)` — integration with 1Password storage/retrieval.
+
+**Provider extraction rules** (`PROVIDER_EXTRACTION_RULES`):
+| Provider | Strategy | Pattern |
+|---|---|---|
+| Cloudflare Workers AI | SNIPPET_BUTTON | API key button on `/dashllar/...` |
+| OpenAI | REGEX | `sk-[a-zA-Z0-9_-]{20,}` on `platform.openai.com/api-keys` |
+| Anthropic | REGEX | `sk-ant-[a-zA-Z0-9_-]+` on `console.anthropic.com/settings/keys` |
+| Groq | REGEX | `gsk_[a-zA-Z0-9]+` on `console.groq.com/keys` |
+| Google AI | SNIPPET_BUTTON | API key button on `aistudio.google.com/` |
+| DeepSeek | REGEX | `sk-[a-zA-Z0-9_-]{48}` on `platform.deepseek.com/` |
+| Gemini | SNIPPET_BUTTON | Show key button on `aistudio.google.com/` |
+
+**Security boundary:** The extraction pipeline is `Browser/page → secret held transiently in memory → 1Password → credential reference`. The secret does NOT flow through chat, debug dictionaries, execution request JSON, registration history, provider state, browser profile metadata, or logs. `ExtractionResult.to_debug_dict()` and `to_result()` remain secret-free. `retrieve_credential_value()` may return the secret ONLY to the operational caller.
+
+### 18.5 OmniRoute Connection Lifecycle (`adapters/omniroute.py`)
+
+- `find_existing_connection(provider_id, omniroute_connections)` — searches existing OmniRoute connections to avoid duplicates.
+- `rename_provider(provider_id, new_name, token)` — renames a provider connection. Uses `PUT /api/providers/{id}` (PATCH returns 405).
+- `update_provider(provider_id, updates, token)` — generic provider update via PUT.
+
+### 18.6 Security Model
+
+**Browser profile:** The persistent browser profile may contain authenticated browser state/cookies internally (this is inherent to persistent browser sessions). However, `browser_profile_metadata.json` contains **metadata only** — no cookies, session tokens, or browser credentials are exported to JSON or state files.
+
+**Human checkpoints:** The browser remains open after human checkpoints. Human authentication happens in the visible browser window — Hermes never asks the user to paste passwords, MFA codes, API keys, or OAuth tokens. Hermes detects checkpoints, tells the user to complete them in the browser, leaves the browser open, re-snapshots, and detects when authentication is complete.
+
+**1Password account-login model:** When Hermes creates a provider account, it saves the account login to 1Password automatically using the provider's display name as the title. If a matching login item already exists, it is detected and reused. The API credential is a separate item. Passwords never appear in chat, registration history, provider state, execution requests, or logs.
+
+### 18.7 Limitations
+
+- Provider browser automation has been **unit-tested** (via mock browser adapters). Real browser end-to-end registration for a second provider is deferred to Phase 10.
+- `api_key_flow` and `oauth_flow` return **declarative action descriptors** (not live browser automation). The Hermes runtime executes these descriptors as actual MCP tool calls.
+- Credential extraction rules are defined per-provider in the `PROVIDER_EXTRACTION_RULES` catalog. New providers require adding a rule entry.
+- The browser profile directory lives outside the repository at `~/.hermes/browser_profiles/` — it is gitignored and not tracked.

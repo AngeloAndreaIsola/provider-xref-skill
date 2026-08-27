@@ -239,6 +239,84 @@ def connect_provider(provider_id: str, credential: dict, name: str | None = None
     return result or {}
 
 
+def find_existing_connection(provider_id: str, account_identifier: str | None = None) -> dict | None:
+    """
+    Find an existing OmniRoute connection for a provider.
+
+    Uses provider_id matching and optionally account_identifier
+    (the provider's account ID) to find a matching connection.
+
+    Returns the connection dict or None.
+    """
+    connections = get_connected_providers()
+    for conn in connections:
+        conn_pid = (conn.get("provider_id") or "").lower()
+        if conn_pid == provider_id.lower():
+            # If account_identifier is provided, check further
+            if account_identifier:
+                # Check if the connection name matches the account identifier
+                display_name = conn.get("display_name", "")
+                if account_identifier in display_name:
+                    return conn
+                # Also check raw connection data
+                raw = conn.get("raw", {})
+                raw_name = raw.get("name", "") if isinstance(raw, dict) else ""
+                if account_identifier in raw_name:
+                    return conn
+            else:
+                return conn
+    return None
+
+
+def rename_provider(connection_id: str, new_name: str) -> dict:
+    """
+    Rename an existing OmniRoute provider connection.
+
+    Phase 8 discovered:
+    - PATCH /api/providers/{id} returns 405 (Method Not Allowed)
+    - PUT /api/providers/{id} works for updates
+
+    This function uses PUT (not PATCH) to update the connection name.
+
+    Args:
+        connection_id: The OmniRoute connection UUID
+        new_name: The new display name for the connection
+
+    Returns: dict with success status.
+    """
+    payload = {
+        "name": new_name,
+        # OmniRoute's PUT endpoint for provider updates
+    }
+    result = _api_request("PUT", f"/api/providers/{connection_id}", data=payload)
+    if result is None:
+        return {"error": "No response from OmniRoute"}
+    if isinstance(result, dict) and "error" in result:
+        return result
+    return {"success": True, "connection_id": connection_id, "name": new_name}
+
+
+def update_provider(connection_id: str, updates: dict) -> dict:
+    """
+    Update an existing OmniRoute provider connection with arbitrary fields.
+
+    Uses PUT (not PATCH — PATCH returns 405 as discovered in Phase 8).
+
+    Args:
+        connection_id: The OmniRoute connection UUID
+        updates: Dict of fields to update (e.g. {"name": "...", "priority": 1})
+
+    Returns: dict with success status.
+    """
+    payload = dict(updates)
+    result = _api_request("PUT", f"/api/providers/{connection_id}", data=payload)
+    if result is None:
+        return {"error": "No response from OmniRoute"}
+    if isinstance(result, dict) and "error" in result:
+        return result
+    return {"success": True, "connection_id": connection_id, "updated_fields": list(updates.keys())}
+
+
 def generate_import_record(provider_id: str, provider_name: str | None = None,
                            auth_type: str = "api_key",
                            credential: dict | None = None,
@@ -443,6 +521,15 @@ class Adapter:
 
     def connect_provider(self, **kwargs):
         return connect_provider(**kwargs)
+
+    def find_existing_connection(self, **kwargs):
+        return find_existing_connection(**kwargs)
+
+    def rename_provider(self, **kwargs):
+        return rename_provider(**kwargs)
+
+    def update_provider(self, **kwargs):
+        return update_provider(**kwargs)
 
     def discover_omniroute_state(self, **kwargs):
         return discover_omniroute_state(**kwargs)
