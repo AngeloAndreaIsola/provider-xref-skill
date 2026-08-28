@@ -109,6 +109,20 @@
       "upstream_identity": null,
       "downstream_identities": [],
       "cascades_to": [],
+      "registration": {
+        "methods": ["oauth", "google", "email"],
+        "browser_required": true,
+        "human_checkpoint_possible": true,
+        "credential_type": "oauth_token",
+        "checkpoint_types": ["email_verification", "manual_oauth", "consent"],
+        "automation_supported": true
+      },
+      "extraction": {
+        "automation_supported": true,
+        "rules_ref": "anthropic",
+        "checkpoint_types": ["email_verification", "manual_oauth"],
+        "notes": "API key revealed on console.anthropic.com/settings/keys; sk-ant- prefix. OAuth signup requires a browser."
+      },
       "tier_value": 50,
       "usefulness": 70,
       "compatibility": 90,
@@ -582,8 +596,78 @@
       "upstream_identity": null,
       "downstream_identities": [],
       "cascades_to": [],
+      "registration": {
+        "methods": ["api_key", "google", "github"],
+        "browser_required": false,
+        "human_checkpoint_possible": true,
+        "credential_type": "api_key",
+        "checkpoint_types": ["email_verification", "phone_verification", "manual_oauth", "consent"],
+        "automation_supported": true
+      },
+      "extraction": {
+        "automation_supported": true,
+        "rules_ref": "groq",
+        "checkpoint_types": ["email_verification", "phone_verification", "manual_oauth"],
+        "notes": "API key revealed on console.groq.com/keys after signup; GSQ prefix."
+      },
       "tier_value": 45,
       "usefulness": 75,
+      "compatibility": 95,
+      "metadata": {}
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "category": "llm",
+      "auth_type": "api_key",
+      "signup_url": "https://platform.openai.com/signup",
+      "login_url": "https://platform.openai.com/login",
+      "dashboard_url": "https://platform.openai.com/settings/organization/api-keys",
+      "free_tier": {
+        "enabled": true,
+        "quota": "$5 sign-up credit (legacy)",
+        "type": "sign_up_credit"
+      },
+      "identity_requirements": ["email"],
+      "identity_relationships": [],
+      "omniroute_support": {
+        "supported": true,
+        "type": "direct"
+      },
+      "policy": {
+        "multiple_accounts": "unknown",
+        "duplicate_account_policy": "unknown",
+        "automation_allowed": "disallowed",
+        "third_party_proxy_allowed": "unknown",
+        "phone_reuse_allowed": "unknown"
+      },
+      "signup_difficulty": "moderate",
+      "verification_requirements": ["email"],
+      "tos_notes": {
+        "personal_use_only": false,
+        "proxy_clause": false,
+        "multi_account_clause": false,
+        "notes": "Policy unknown — provider not yet registered. Conservative default: do not automate until verified."
+      },
+      "upstream_identity": null,
+      "downstream_identities": [],
+      "cascades_to": [],
+      "registration": {
+        "methods": ["api_key", "email", "google", "microsoft"],
+        "browser_required": false,
+        "human_checkpoint_possible": true,
+        "credential_type": "api_key",
+        "checkpoint_types": ["email_verification", "manual_oauth", "consent"],
+        "automation_supported": false
+      },
+      "extraction": {
+        "automation_supported": true,
+        "rules_ref": "openai",
+        "checkpoint_types": ["email_verification"],
+        "notes": "API key revealed on platform.openai.com/api-keys; sk- prefix."
+      },
+      "tier_value": 50,
+      "usefulness": 90,
       "compatibility": 95,
       "metadata": {}
     },
@@ -3791,6 +3875,20 @@
       "upstream_identity": null,
       "downstream_identities": [],
       "cascades_to": [],
+      "registration": {
+        "methods": ["api_key", "email"],
+        "browser_required": false,
+        "human_checkpoint_possible": true,
+        "credential_type": "api_key",
+        "checkpoint_types": ["email_verification", "consent"],
+        "automation_supported": true
+      },
+      "extraction": {
+        "automation_supported": true,
+        "rules_ref": "cloudflare-ai",
+        "checkpoint_types": ["email_verification"],
+        "notes": "API token revealed on dash.cloudflare.com; cfat_ prefix. Account ID also required."
+      },
       "tier_value": 30,
       "usefulness": 50,
       "compatibility": 70,

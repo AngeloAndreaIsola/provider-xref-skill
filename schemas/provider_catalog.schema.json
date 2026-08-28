@@ -114,6 +114,40 @@
           "items": {"type": "string"},
           "description": "Provider IDs that can be unlocked by this provider"
         },
+        "registration": {
+          "type": "object",
+          "description": "OPTIONAL, backward-compatible registration metadata (Phase 11). When absent, the capability model derives conservative defaults from auth_type / policy / identity_requirements.",
+          "properties": {
+            "methods": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["email", "google", "github", "microsoft", "apple", "oauth", "api_key", "password", "pat", "phone", "other"]},
+              "description": "Supported registration/auth methods for this provider"
+            },
+            "browser_required": {"type": "boolean", "description": "Whether registration requires a browser (e.g. OAuth flows)"},
+            "human_checkpoint_possible": {"type": "boolean", "description": "Whether a human checkpoint (CAPTCHA, email/phone verification, consent) can be required"},
+            "credential_type": {"type": ["string", "null"], "enum": ["api_key", "oauth_token", "password", "pat", "none", null], "description": "Expected credential type, or null/none if no credential is needed"},
+            "checkpoint_types": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["captcha", "email_verification", "phone_verification", "security_challenge", "manual_oauth", "consent", "id_document", "manual_review"]},
+              "description": "Possible human-checkpoint types during registration"
+            },
+            "automation_supported": {"type": ["boolean", "null"], "description": "Tri-state: true/false explicit, null=unspecified (derive from workflow presence)"}
+          }
+        },
+        "extraction": {
+          "type": "object",
+          "description": "OPTIONAL, backward-compatible credential extraction configuration (Phase 11). References the data-driven PROVIDER_EXTRACTION_RULES catalog.",
+          "properties": {
+            "automation_supported": {"type": "boolean", "description": "Whether automated credential extraction is configured"},
+            "rules_ref": {"type": ["string", "null"], "description": "Provider id key into PROVIDER_EXTRACTION_RULES"},
+            "checkpoint_types": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Checkpoint types that may arise during extraction"
+            },
+            "notes": {"type": "string", "description": "Free-text note (no secrets)"}
+          }
+        },
         "tier_value": {"type": "number", "default": 5, "description": "0-100, higher = more valuable free tier"},
         "usefulness": {"type": "number", "default": 5, "description": "0-100, how useful the free tier is to the user"},
         "compatibility": {"type": "number", "default": 5, "description": "0-100, how well it works with OmniRoute"},
