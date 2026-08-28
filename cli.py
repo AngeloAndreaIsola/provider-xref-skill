@@ -35,6 +35,11 @@ from engine.onboarding import (  # noqa: E402
     plan_onboarding,
     plan_wave,
 )
+from engine.inventory import (  # noqa: E402
+    build_inventory,
+    inventory_to_dict,
+    unmatched_records,
+)
 from engine.review import (  # noqa: E402
     REVIEW_STATUSES,
     get_review_queue,
@@ -148,6 +153,35 @@ def cmd_review_set(args) -> int:
     return _emit(payload, args.json, render)
 
 
+# ── inventory ────────────────────────────────────────────────────────────────
+
+def cmd_inventory(args) -> int:
+    """Canonical cross-system inventory (read-only)."""
+    inv = build_inventory(load_state())
+    payload = inventory_to_dict(inv)
+    payload["unmatched"] = unmatched_records(inv)
+
+    def render(p):
+        for pid, prov in p["providers"].items():
+            print(f"{pid}  ({prov['account_count']} account(s))")
+            for a in prov["accounts"]:
+                who = a["identity"].get("identity_email") or a["account_key"]
+                print(f"    {who}")
+                print(f"        1Password login:      "
+                      f"{'yes' if a['onepassword_login'] else 'no'}")
+                print(f"        1Password API key:    "
+                      f"{'yes' if a['onepassword_api_key'] else 'no'}")
+                print(f"        Hermes reference:     "
+                      f"{'yes' if a['hermes_reference'] else 'no'}")
+                print(f"        OmniRoute connection: "
+                      f"{'yes' if a['omniroute_connection'] else 'no'}")
+        s = p["summary"]
+        print(f"\n{s['total_accounts']} account(s), {s['providers']} provider(s) "
+              f"— read-only inventory.")
+
+    return _emit(payload, args.json, render)
+
+
 # ── onboard (dry-run only) ───────────────────────────────────────────────────
 
 def cmd_onboard(args) -> int:
@@ -196,6 +230,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp_review = add("review", cmd_review, "inconsistency review queue (read-only)")
     sp_review.add_argument("--status", action="append", choices=list(REVIEW_STATUSES),
                            help="filter by review status (repeatable)")
+
+    add("inventory", cmd_inventory, "cross-system credential/account inventory")
 
     sp_onb = add("onboard", cmd_onboard,
                  "DRY-RUN onboarding plan (registers nothing)")
