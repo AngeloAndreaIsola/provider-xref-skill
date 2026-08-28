@@ -382,6 +382,58 @@ def ensure_signed_in() -> bool:
         return False
 
 
+# ── Read-error visibility (so a failed read is never mistaken for "empty") ──
+#
+# `search_items()` must keep returning a list because callers concatenate
+# results with `+`. To avoid a failed read looking identical to a genuinely
+# empty vault, the last error is recorded here and exposed via `last_error()`.
+
+_LAST_ERROR: str | None = None
+
+
+def _set_last_error(msg: str | None) -> None:
+    global _LAST_ERROR
+    _LAST_ERROR = msg
+
+
+def _clear_last_error() -> None:
+    global _LAST_ERROR
+    _LAST_ERROR = None
+
+
+def last_error() -> str | None:
+    """Return the last 1Password read error, or None if the last read was OK.
+
+    Callers that need to distinguish "no matching items" from "the read
+    failed" should check this immediately after calling `search_items()`.
+    """
+    return _LAST_ERROR
+
+
+def read_available() -> tuple[bool, str | None]:
+    """Probe whether 1Password items are actually readable right now.
+
+    Returns (available, detail). `available` is False when the CLI errors
+    (not signed in, wrong flag, timeout). An empty-but-successful listing
+    returns True with a note, because that is a real answer rather than a
+    failure — important because a read-only service-account token can see a
+    valid-but-unrelated subset of vaults.
+    """
+    result = _run_op(["item", "list", "--format", "json"])
+    if isinstance(result, dict) and "error" in result:
+        _set_last_error(result["error"])
+        return False, result["error"]
+    if isinstance(result, str):
+        msg = f"unexpected non-JSON output from op: {result[:120]}"
+        _set_last_error(msg)
+        return False, msg
+    _clear_last_error()
+    count = len(result) if isinstance(result, list) else 0
+    if count == 0:
+        return True, "op returned zero items (check vault access / service account scope)"
+    return True, f"{count} item(s) visible"
+
+
 def _run_op(args: list[str], timeout: int = 15) -> dict | str | None:
     """Run an op command and return parsed JSON or raw output."""
     try:
@@ -416,23 +468,71 @@ def search_items(query: str | None = None, vault: str | None = None,
 
     Returns a list of item dicts with: id, title, vault, tags, etc.
     (No secret values included.)
+
+    NOTE on `query`: the 1Password CLI's `op item list` has NO `--search`
+    flag (verified against op 2.38.1 — it supports only --categories, --tags,
+    --vault, --favorite, --long, --include-archive). Passing `--search`
+    made every call fail with "unknown flag", and the error was mapped to an
+    empty list, so 1Password silently appeared to contain nothing. The query
+    is therefore applied as a client-side substring filter over the listed
+    items instead.
+
+    Errors are recorded via `last_error()` so callers can distinguish
+    "genuinely no matching items" from "the read failed". The return type
+    stays a list because callers concatenate results with `+`.
     """
-    args = ["item", "list"]
+    args = ["item", "list", "--format", "json"]
 
     if vault:
         args.extend(["--vault", vault])
-    if query:
-        args.extend(["--search", query])
     if tags:
         for t in tags:
             args.extend(["--tag", t])
 
     result = _run_op(args)
+
     if isinstance(result, dict) and "error" in result:
+        _set_last_error(result["error"])
         return []
     if isinstance(result, str):
+        _set_last_error(f"unexpected non-JSON output from op: {result[:120]}")
         return []
-    return result if isinstance(result, list) else []
+    if not isinstance(result, list):
+        # None => no output at all; treat as an empty (but successful) list.
+        _clear_last_error()
+        return []
+
+    _clear_last_error()
+
+    if not query:
+        return result
+    return [it for it in result if _item_matches(it, query)]
+
+
+def _item_matches(item: dict, query: str) -> bool:
+    """Client-side substring match over non-secret item metadata."""
+    if not isinstance(item, dict):
+        return False
+    q = query.strip().lower()
+    if not q:
+        return True
+    haystack = [
+        str(item.get("title") or ""),
+        str(item.get("category") or ""),
+        str((item.get("vault") or {}).get("name")
+            if isinstance(item.get("vault"), dict) else item.get("vault") or ""),
+    ]
+    for u in item.get("urls") or []:
+        if isinstance(u, dict):
+            haystack.append(str(u.get("href") or ""))
+    tags = item.get("tags") or []
+    if isinstance(tags, list):
+        haystack.extend(str(t) for t in tags)
+    blob = " ".join(haystack).lower()
+    # Match if the whole query appears, or every whitespace-separated token does.
+    if q in blob:
+        return True
+    return all(tok in blob for tok in q.split())
 
 
 def search_provider_items(provider_name: str, vault: str | None = None) -> list[dict]:
