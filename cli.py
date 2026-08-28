@@ -30,6 +30,11 @@ if str(SKILL_ROOT) not in sys.path:
 from engine.accounts import account_summary, build_account_model  # noqa: E402
 from engine.capability import build_capabilities  # noqa: E402
 from engine.reconcile import reconcile_all, summarize_reconciliation  # noqa: E402
+from engine.onboarding import (  # noqa: E402
+    PROVIDER_WAVE_1,
+    plan_onboarding,
+    plan_wave,
+)
 from engine.review import (  # noqa: E402
     REVIEW_STATUSES,
     get_review_queue,
@@ -143,6 +148,32 @@ def cmd_review_set(args) -> int:
     return _emit(payload, args.json, render)
 
 
+# ── onboard (dry-run only) ───────────────────────────────────────────────────
+
+def cmd_onboard(args) -> int:
+    """Dry-run onboarding plan. Registers nothing, connects nothing."""
+    if args.provider_id:
+        payload = plan_onboarding(args.provider_id).to_dict()
+    else:
+        payload = plan_wave(PROVIDER_WAVE_1)
+
+    def render(p):
+        plans = [p] if "provider_id" in p else list(p["plans"].values())
+        for pl in plans:
+            print(f"{pl['provider_id']}  status={pl['status']}  "
+                  f"auto_enable_allowed={pl['auto_enable_allowed']}")
+            for s in pl["stages"]:
+                mark = "OK " if s["ok"] else "!! "
+                print(f"   {mark}{s['stage']:<24} {s['detail']}")
+            for r in pl["approval_required_reasons"]:
+                print(f"   approval: {r}")
+            print()
+        print("DRY RUN — no provider, 1Password, OmniRoute or Hermes state "
+              "was modified. Execution requires explicit approval.")
+
+    return _emit(payload, args.json, render)
+
+
 # ── parser ───────────────────────────────────────────────────────────────────
 
 def build_parser() -> argparse.ArgumentParser:
@@ -165,6 +196,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp_review = add("review", cmd_review, "inconsistency review queue (read-only)")
     sp_review.add_argument("--status", action="append", choices=list(REVIEW_STATUSES),
                            help="filter by review status (repeatable)")
+
+    sp_onb = add("onboard", cmd_onboard,
+                 "DRY-RUN onboarding plan (registers nothing)")
+    sp_onb.add_argument("provider_id", nargs="?", default=None,
+                        help="provider id; omit to plan wave 1")
 
     sp_set = add("review-set", cmd_review_set, "set review status metadata only")
     sp_set.add_argument("finding_id")
