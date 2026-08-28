@@ -35,6 +35,9 @@ from engine.onboarding import (  # noqa: E402
     plan_onboarding,
     plan_wave,
 )
+from engine.automation import (  # noqa: E402
+    plan_remediation,
+)
 from engine.account_reconcile import (  # noqa: E402
     account_reconciliation_report,
     reconcile_accounts,
@@ -158,6 +161,37 @@ def cmd_review_set(args) -> int:
     return _emit(payload, args.json, render)
 
 
+# ── remediate (plan only) ────────────────────────────────────────────────────
+
+def cmd_remediate(args) -> int:
+    """Show what COULD be remediated. Executes nothing.
+
+    Execution lives in engine.automation.execute_approved_action and requires
+    an explicit Approval object per finding — deliberately not reachable from
+    a single CLI flag.
+    """
+    payload = plan_remediation(load_state())
+
+    def render(p):
+        if not p["items"]:
+            print("Nothing to remediate.")
+            return
+        for i in p["items"]:
+            gate = "human-only" if i["human_only"] else (
+                "executable with approval" if i["executable"] else "not executable")
+            print(f"{i['finding_id']}  {i['category']}  ({gate})")
+            print(f"    provider: {i['provider_id']}")
+            print(f"    account:  {i['account_key']}")
+            print(f"    proposed: {i['proposed_action']}")
+            for c in i["preconditions"]:
+                if not c["ok"]:
+                    print(f"    blocked:  {c['check']} — {c['detail']}")
+            print()
+        print("Nothing was executed. Every action requires explicit approval.")
+
+    return _emit(payload, args.json, render)
+
+
 # ── account-reconcile ────────────────────────────────────────────────────────
 
 def cmd_account_reconcile(args) -> int:
@@ -249,6 +283,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp_review = add("review", cmd_review, "inconsistency review queue (read-only)")
     sp_review.add_argument("--status", action="append", choices=list(REVIEW_STATUSES),
                            help="filter by review status (repeatable)")
+
+    add("remediate", cmd_remediate,
+        "list approval-gated remediation candidates (executes nothing)")
 
     add("account-reconcile", cmd_account_reconcile,
         "account-level reconciliation view (read-only)")
