@@ -35,6 +35,11 @@ from engine.onboarding import (  # noqa: E402
     plan_onboarding,
     plan_wave,
 )
+from engine.account_reconcile import (  # noqa: E402
+    account_reconciliation_report,
+    reconcile_accounts,
+    render_report,
+)
 from engine.inventory import (  # noqa: E402
     build_inventory,
     inventory_to_dict,
@@ -153,6 +158,20 @@ def cmd_review_set(args) -> int:
     return _emit(payload, args.json, render)
 
 
+# ── account-reconcile ────────────────────────────────────────────────────────
+
+def cmd_account_reconcile(args) -> int:
+    """Account-level reconciliation view (read-only; repairs nothing)."""
+    st = load_state()
+    payload = account_reconciliation_report(st)
+
+    def render(p):
+        print(render_report(reconcile_accounts(st)))
+        print("status counts:", p["status_counts"])
+
+    return _emit(payload, args.json, render)
+
+
 # ── inventory ────────────────────────────────────────────────────────────────
 
 def cmd_inventory(args) -> int:
@@ -230,6 +249,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp_review = add("review", cmd_review, "inconsistency review queue (read-only)")
     sp_review.add_argument("--status", action="append", choices=list(REVIEW_STATUSES),
                            help="filter by review status (repeatable)")
+
+    add("account-reconcile", cmd_account_reconcile,
+        "account-level reconciliation view (read-only)")
 
     add("inventory", cmd_inventory, "cross-system credential/account inventory")
 
