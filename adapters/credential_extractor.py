@@ -189,6 +189,37 @@ PROVIDER_EXTRACTION_RULES: dict[str, list[ExtractionRule]] = {
             description="DeepSeek API key",
         ),
     ],
+    "deepinfra": [
+        ExtractionRule(
+            credential_type="api_key",
+            strategy=ExtractionStrategy.REGEX,
+            pattern=r"Bearer\s+(eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)",
+            prefix="eyJ",
+            page="api-keys",
+            description="DeepInfra API key (JWT bearer token)",
+            group=1,
+        ),
+    ],
+    "siliconflow": [
+        ExtractionRule(
+            credential_type="api_key",
+            strategy=ExtractionStrategy.REGEX,
+            pattern=r"sk-[a-zA-Z0-9]{32,}",
+            prefix="sk-",
+            page="api-keys",
+            description="SiliconFlow API key",
+        ),
+    ],
+    "nebius": [
+        ExtractionRule(
+            credential_type="api_key",
+            strategy=ExtractionStrategy.REGEX,
+            pattern=r"xnd_[a-zA-Z0-9_-]{32,}",
+            prefix="xnd_",
+            page="api-keys",
+            description="Nebius API key",
+        ),
+    ],
 }
 
 

@@ -44,7 +44,28 @@ class ProviderGraph:
         self._build()
 
     def _build(self):
-        """Build internal adjacency structures from state + catalog."""
+        """Build internal adjacency structures from state + catalog.
+
+        Identifier strategy (Phase 10 schema-drift fix)
+        -------------------------------------------------
+        Production provider_state.json does NOT assign ``id`` to
+        credentials or capabilities; instead both use ``provider_id`` as
+        their natural key and link to a provider account (when known)
+        via ``provider_account_id``.  The fixtures/schema historically
+        assumed ``id`` + ``provider_account_id``.
+
+        To make graph construction work against BOTH shapes we derive a
+        stable node key instead of requiring ``id``:
+
+          * explicit ``id`` wins (preserves fixture behaviour),
+          * otherwise ``cred:<provider_id>:<type>`` /
+            ``cap:<provider_id>:<type>`` — deterministic, stable across
+            builds, and collision-free for the same (provider, type).
+
+        Edges are indexed on BOTH ``provider_account_id`` and
+        ``provider_id`` so either linkage works.  We never invent ids
+        into the production data; the key is computed locally.
+        """
         self.identities: dict[str, dict] = {}
         self.external_accounts: dict[str, dict] = {}
         self.provider_accounts: dict[str, dict] = {}
@@ -58,10 +79,17 @@ class ProviderGraph:
             self.external_accounts[ea["id"]] = ea
         for pa in self.state.get("provider_accounts", []):
             self.provider_accounts[pa["id"]] = pa
+
+        # Credentials: derive a stable key (see docstring above).
         for c in self.state.get("credentials", []):
-            self.credentials[c["id"]] = c
+            key = self._credential_key(c)
+            self.credentials[key] = c
+            c["_key"] = key
+        # Capabilities: derive a stable key (see docstring above).
         for cap in self.state.get("capabilities", []):
-            self.capabilities[cap["id"]] = cap
+            key = self._capability_key(cap)
+            self.capabilities[key] = cap
+            cap["_key"] = key
 
         # Edges: identity_id -> [external_account_ids]
         self.identity_to_external: dict[str, list[str]] = defaultdict(list)
@@ -77,9 +105,13 @@ class ProviderGraph:
 
         # Edges: provider_account_id -> [capability_ids]
         self.provider_to_capability: dict[str, list[str]] = defaultdict(list)
+        # Edges: provider_id -> [capability_ids] (production shape)
+        self.provider_id_to_capability: dict[str, list[str]] = defaultdict(list)
         for cap in self.capabilities.values():
             if cap.get("provider_account_id"):
-                self.provider_to_capability[cap["provider_account_id"]].append(cap["id"])
+                self.provider_to_capability[cap["provider_account_id"]].append(cap["_key"])
+            if cap.get("provider_id"):
+                self.provider_id_to_capability[cap["provider_id"]].append(cap["_key"])
 
         # Edges: identity_id -> [provider_account_ids] (direct link, may skip external)
         self.identity_to_provider: dict[str, list[str]] = defaultdict(list)
@@ -89,9 +121,40 @@ class ProviderGraph:
 
         # Edges: provider_account_id -> [credential_ids]
         self.provider_to_credential: dict[str, list[str]] = defaultdict(list)
+        # Edges: provider_id -> [credential_ids] (production shape)
+        self.provider_id_to_credential: dict[str, list[str]] = defaultdict(list)
         for cred in self.credentials.values():
             if cred.get("provider_account_id"):
-                self.provider_to_credential[cred["provider_account_id"]].append(cred["id"])
+                self.provider_to_credential[cred["provider_account_id"]].append(cred["_key"])
+            if cred.get("provider_id"):
+                self.provider_id_to_credential[cred["provider_id"]].append(cred["_key"])
+
+    @staticmethod
+    def _credential_key(cred: dict) -> str:
+        """Stable, deterministic node key for a credential.
+
+        Prefers an explicit ``id``; otherwise derives
+        ``cred:<provider_id>:<type>`` so the key is identical across
+        builds for the same (provider, type) pair.
+        """
+        if cred.get("id"):
+            return cred["id"]
+        pid = cred.get("provider_id", "unknown")
+        ctype = cred.get("type", "unknown")
+        return f"cred:{pid}:{ctype}"
+
+    @staticmethod
+    def _capability_key(cap: dict) -> str:
+        """Stable, deterministic node key for a capability.
+
+        Prefers an explicit ``id``; otherwise derives
+        ``cap:<provider_id>:<type>``.
+        """
+        if cap.get("id"):
+            return cap["id"]
+        pid = cap.get("provider_id", "unknown")
+        ctype = cap.get("type", cap.get("name", "unknown"))
+        return f"cap:{pid}:{ctype}"
 
     # ── Node accessors ───────────────────────────────────────────────────
 
@@ -256,11 +319,17 @@ class ProviderGraph:
         if node_id in self.external_to_provider:
             neighbors.extend(self.external_to_provider[node_id])
 
-        # Provider Account -> Capabilities + Credentials
+        # Provider Account -> Capabilities + Credentials (by account id)
         if node_id in self.provider_to_capability:
             neighbors.extend(self.provider_to_capability[node_id])
         if node_id in self.provider_to_credential:
             neighbors.extend(self.provider_to_credential[node_id])
+
+        # Provider -> Capabilities + Credentials (by provider_id; production shape)
+        if node_id in self.provider_id_to_capability:
+            neighbors.extend(self.provider_id_to_capability[node_id])
+        if node_id in self.provider_id_to_credential:
+            neighbors.extend(self.provider_id_to_credential[node_id])
 
         # Provider Account -> Provider (catalog) -> cascades_to providers
         pa = self.find_provider_account(node_id)

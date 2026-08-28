@@ -405,7 +405,8 @@ def plan_new_phone(phone_number: str, state: dict | None = None, catalog: dict |
     from pathlib import Path
     plans_dir = Path(_get_skill_path("data/plans"))
     plans_dir.mkdir(parents=True, exist_ok=True)
-    plan_file = plans_dir / f"plan_{result['id']}.json"
+    # result['id'] is already prefixed with "plan_" via uuid_id("plan").
+    plan_file = plans_dir / f"{result['id']}.json"
     from .utils import save_json_atomic
     save_json_atomic(str(plan_file), result)
 
@@ -523,7 +524,8 @@ def plan_new_email(email_address: str, state: dict | None = None, catalog: dict 
     from pathlib import Path
     plans_dir = Path(_get_skill_path("data/plans"))
     plans_dir.mkdir(parents=True, exist_ok=True)
-    plan_file = plans_dir / f"plan_{result['id']}.json"
+    # result['id'] is already prefixed with "plan_" via uuid_id("plan").
+    plan_file = plans_dir / f"{result['id']}.json"
     from .utils import save_json_atomic
     save_json_atomic(str(plan_file), result)
 
@@ -627,7 +629,8 @@ def plan_registration(provider_id: str, state: dict | None = None, catalog: dict
     from pathlib import Path
     plans_dir = Path(_get_skill_path("data/plans"))
     plans_dir.mkdir(parents=True, exist_ok=True)
-    plan_file = plans_dir / f"plan_{plan_id}.json"
+    # plan_id is already prefixed with "plan_" via uuid_id("plan").
+    plan_file = plans_dir / f"{plan_id}.json"
     from .utils import save_json_atomic
     save_json_atomic(str(plan_file), plan)
 

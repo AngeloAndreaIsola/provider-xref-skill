@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-27T11:35:00Z",
+  "identities": [
+    {
+      "type": "email",
+      "value": "andrea.isola@me.com",
+      "source": "user_provided",
+      "verified": true,
+      "evidence_type": "user_provided_identity",
+      "id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "created_at": "2026-08-26T21:30:43Z",
+      "status": "active",
+      "verification": {},
+      "constraints": []
+    }
+  ],
+  "external_accounts": [
+    {
+      "id": "ea_cloudflare_cc4d64893d39ca100a190532237258e7",
+      "provider_id": "cloudflare-ai",
+      "account_name": "Andrea.isola@me.com's Account",
+      "account_id": "cc4d64893d39ca100a190532237258e7",
+      "email": "andrea.isola@me.com",
+      "dashboard_url": "https://dash.cloudflare.com/cc4d64893d39ca100a190532237258e7",
+      "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "source": "browser_automation",
+      "created_at": "2026-08-27T09:58:24Z",
+      "status": "active"
+    }
+  ],
+  "provider_accounts": [
+    {
+      "id": "pa_5b4f9b3d795b",
+      "provider_id": "groq",
+      "status": "connected",
+      "auth_type": "api_key",
+      "omniroute_connected": true,
+      "omniroute_account_id": "conn_1",
+      "created_at": "2026-08-26T12:31:48Z",
+      "last_verified": "2026-08-26T12:31:48Z",
+      "observed_at": "2026-08-26T12:31:48Z",
+      "source": "omniroute_sync",
+      "ownership_status": "unknown",
+      "match_method": null,
+      "match_confidence": "unknown",
+      "identity_id": null,
+      "external_account_id": null,
+      "metadata": {
+        "id": "conn_1",
+        "provider": "groq",
+        "authType": "apiKey"
+      }
+    },
+    {
+      "id": "pa_cloudflare_ai_001",
+      "provider_id": "cloudflare-ai",
+      "status": "connected",
+      "auth_type": "api_key",
+      "omniroute_connected": true,
+      "name": "andrea.isola@me.com",
+      "omniroute_account_id": "1c344492-fb7d-4aa1-b350-48ee6f5e1b7b",
+      "created_at": "2026-08-27T10:00:19Z",
+      "last_verified": "2026-08-27T11:26:00Z",
+      "observed_at": "2026-08-27T11:26:00Z",
+      "source": "registration",
+      "ownership_status": "known",
+      "match_method": "identity_match",
+      "match_confidence": "high",
+      "identity_id": "identity_email_andrea_isola_me_com_c34e6e6e",
+      "external_account_id": "ea_cloudflare_cc4d64893d39ca100a190532237258e7",
+      "credential_ref": {
+        "backend": "1password",
+        "vault": "Private",
+        "item_id": "okp6wco72wqqtukcftwmm6azu4",
+        "item_title": "OmniRoute api.cloudflare.com Api Key",
+        "field": "password",
+        "reference": "op://Private/OmniRoute api.cloudflare.com Api Key/password"
+      },
+      "metadata": {
+        "id": "1c344492-fb7d-4aa1-b350-48ee6f5e1b7b",
+        "provider": "cloudflare-ai",
+        "authType": "apikey",
+        "name": "andrea.isola@me.com",
+        "priority": 1,
+        "isActive": true,
+        "testStatus": "active",
+        "account_id": "cc4d64893d39ca100a190532237258e7",
+        "auto_sync": "enabled",
+        "auto_sync_mechanism": "omniroute_builtin_scheduler",
+        "model_count": 26
+      }
+    }
+  ],
+  "credentials": [
+    {
+      "provider_id": "cloudflare-ai",
+      "type": "api_key",
+      "backend": "1password",
+      "vault": "Private",
+      "item_id": "okp6wco72wqqtukcftwmm6azu4",
+      "field": "password",
+      "reference": "op://Private/OmniRoute api.cloudflare.com Api Key/password",
+      "status": "stored",
+      "created_at": "2026-08-27T12:48:27Z"
+    }
+  ],
+  "capabilities": [
+    {
+      "provider_id": "cloudflare-ai",
+      "type": "model_inference",
+      "supported": true,
+      "details": {
+        "model_count": 26,
+        "context_window_max": 262144,
+        "api_mode": "chat_completions"
+      }
+    }
+  ]
+}

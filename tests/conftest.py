@@ -79,7 +79,7 @@ def sample_external_account(sample_phone_identity):
     return {
         "id": "ext_001",
         "identity_id": "ident_001",
-        "provider": "google",
+        "provider_id": "google",
         "status": "active",
         "username": "googleuser@gmail.com",
         "email": "googleuser@gmail.com",
@@ -120,6 +120,7 @@ def sample_credential(sample_provider_account):
     return {
         "id": "cred_001",
         "type": "api_key",
+        "provider_id": "openai",
         "backend": "1password",
         "vault": "Personal",
         "item_id": "item_abc123",
@@ -136,6 +137,8 @@ def sample_capability():
     return {
         "id": "cap_001",
         "name": "llm_api",
+        "type": "model_inference",
+        "provider_id": "openai",
         "provider_account_id": "pa_001",
         "capabilities": ["text_generation", "json_mode"],
         "verified": True,
