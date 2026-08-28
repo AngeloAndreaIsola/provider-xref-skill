@@ -196,7 +196,10 @@ class TestReconcileDuplicate:
 
 class TestReconcileConflictingIdentity:
 
-    def test_conflicting_identity_emails(self):
+    def test_distinct_identities_with_separate_connections_not_conflict(self):
+        # Two Hermes-anchored accounts with DIFFERENT emails and SEPARATE
+        # OmniRoute connections is the NORMAL multi-account case — NOT a
+        # conflict. (Conflict = same connection, different identities.)
         state = {"identities": [],
                  "external_accounts": [],
                  "provider_accounts": [
@@ -210,11 +213,31 @@ class TestReconcileConflictingIdentity:
                     op_login("li2", "Groq Account", "lazymause@gmail.com")]
         recon = reconcile_all(state, omni_conns, op_items)
         rp = recon["groq"]
-        # two hermes-anchored accounts with different emails => conflict flagged
         assert rp.account_count == 2
-        assert any(STATE_CONFLICTING_IDENTITY == a.state or
-                   any("conflicting_identity_email" in i for i in a.issues)
-                   for a in rp.accounts)
+        # distinct accounts, each with its own identity email (not overwritten)
+        emails = {a.identity_email for a in rp.accounts}
+        assert emails == {"ang@example.com", "lazymause@gmail.com"}
+        # NOT flagged as a conflict
+        assert not any(STATE_CONFLICTING_IDENTITY == a.state for a in rp.accounts)
+        assert not any("conflicting_identity" in i for a in rp.accounts for i in a.issues)
+
+    def test_conflict_same_connection_different_identity(self):
+        # Two accounts sharing ONE OmniRoute connection but with DIFFERENT
+        # identities => conflict (ambiguous ownership of the same connection).
+        state = {"identities": [],
+                 "external_accounts": [],
+                 "provider_accounts": [
+                     hermes_account("groq", "pa1", omni_id="c1", identity_id="id_ang"),
+                     hermes_account("groq", "pa2", omni_id="c1", identity_id="id_lazy"),
+                 ],
+                 "credentials": [], "capabilities": []}
+        omni_conns = [omni("groq", "c1", "ang@example.com")]
+        op_items = [op_login("li1", "Groq Account", "ang@example.com")]
+        recon = reconcile_all(state, omni_conns, op_items)
+        rp = recon["groq"]
+        # both anchor to the single connection, different identities => conflict
+        assert any(STATE_CONFLICTING_IDENTITY == a.state for a in rp.accounts) or \
+               any("conflicting_identity_connection" in i for a in rp.accounts for i in a.issues)
 
 
 class TestReconcileUnknown:

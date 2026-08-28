@@ -221,7 +221,9 @@ def reconcile_account(
         if cred_ref:
             api_key_ref = cred_ref
 
-    # Email from identity link (resolved by caller) or omniroute display name
+    # Email from OmniRoute display name as a best-effort hint when no identity
+    # email is otherwise known. Safe because reconcile_provider assigns each
+    # account only its OWN connection (no cross-account overwrite).
     if omni_conn:
         dn = omni_conn.get("display_name") or ""
         if "@" in dn and identity_email is None:
@@ -335,13 +337,14 @@ def reconcile_provider(
         if pid != provider_id:
             continue
         conn = None
-        # match omniroute by connection id or provider_id
+        # match omniroute by connection id (strict: only the account's own
+        # connection). No fallback to omni_for_provider[0] — that would make two
+        # accounts sharing a provider inherit the SAME connection and overwrite
+        # each other's distinct identities/emails.
         for c in omni_for_provider:
             if c.get("connection_id") and c.get("connection_id") == ha.get("omniroute_account_id"):
                 conn = c
                 break
-        if conn is None and omni_for_provider:
-            conn = omni_for_provider[0]
         # Resolve identity email for this account
         acc_email = identity_email_by_id.get(ha.get("identity_id")) if ha.get("identity_id") else None
         if acc_email is None and conn:
@@ -359,8 +362,10 @@ def reconcile_provider(
             login_items=login_match or [],
             api_key_items=api_match or [],
         )
-        if acc.identity_id and acc.identity_email is None:
-            acc.identity_email = identity_email_by_id.get(acc.identity_id)
+        if acc.identity_id:
+            # Prefer the resolved identity email over any OmniRoute display_name
+            # hint (the display_name is only a fallback when identity unknown).
+            acc.identity_email = acc_email or acc.identity_email
         accounts.append(acc)
 
     # 2) OmniRoute connections not yet anchored to a Hermes account
@@ -446,9 +451,10 @@ def _match_op_items_to_account(
 def _mark_conflicting_identities(accounts: list[ReconciledAccount]) -> None:
     """Mark duplicate-identity / conflicting-identity situations.
 
-    Conflict = two accounts share the same identity_id (duplicate) OR two
-    accounts have different non-null identities where one is 'known' and the
-    other carries contradictory email metadata. This is metadata-only.
+    Duplicate: two accounts share the same identity_id.
+    Conflict: two accounts share the SAME OmniRoute connection id but carry
+    DIFFERENT non-null identity_ids — i.e. one connection is claimed by two
+    distinct identities (ambiguous ownership). Metadata-only.
     """
     by_identity: dict[str, list[ReconciledAccount]] = defaultdict(list)
     for a in accounts:
@@ -461,17 +467,20 @@ def _mark_conflicting_identities(accounts: list[ReconciledAccount]) -> None:
                     a.state = STATE_DUPLICATE
                 a.issues.append(f"duplicate_identity:{ident}")
 
-    # Conflicting email metadata for same provider (different emails)
-    emails = [a.identity_email for a in accounts if a.identity_email]
-    if len(set(emails)) > 1:
-        for a in accounts:
-            if a.identity_email:
-                a.issues.append(f"conflicting_identity_email:{a.identity_email}")
-        # only flag as conflicting if at least one is hermes-anchored
-        if any(a.has_hermes_ref for a in accounts):
-            for a in accounts:
+    # Conflict: same OmniRoute connection, different identities
+    by_conn: dict[str, list[ReconciledAccount]] = defaultdict(list)
+    for a in accounts:
+        if a.omniroute_connection_id:
+            by_conn[a.omniroute_connection_id].append(a)
+    for conn_id, group in by_conn.items():
+        if len(group) < 2:
+            continue
+        idents = {a.identity_id for a in group if a.identity_id}
+        if len(idents) > 1:
+            for a in group:
                 if a.state not in (STATE_DUPLICATE,):
                     a.state = STATE_CONFLICTING_IDENTITY
+                a.issues.append(f"conflicting_identity_connection:{conn_id}")
 
 
 def reconcile_all(
