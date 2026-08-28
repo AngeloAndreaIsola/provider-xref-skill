@@ -228,10 +228,13 @@ class TestNamingConvention:
 
         prep = workflow.prepare(opp)
 
-        with patch("workflows.api_key.create_login") as mock_create:
+        with patch("workflows.api_key.create_login") as mock_create, \
+             patch("workflows.api_key.find_login_item", return_value=None), \
+             patch("workflows.api_key.find_api_key_item", return_value=None):
             mock_create.return_value = {"id": "test_item_id", "vault": "Personal"}
             fake_api_key = "TEST_SECRET_DO_NOT_LEAK_12345"
-            result = workflow.acquire_credentials(opp, prep, fake_api_key)
+            fake_password = "TEST_PASSWORD_VALUE_123"
+            result = workflow.acquire_credentials(opp, prep, fake_api_key, password=fake_password)
 
             call = mock_create.call_args
             title = call.kwargs.get("title") or call[1].get("title")
@@ -271,9 +274,11 @@ class TestNamingConvention:
 
         prep = workflow.prepare(opp)
 
-        with patch("workflows.api_key.create_login") as mock_create:
+        with patch("workflows.api_key.create_login") as mock_create, \
+             patch("workflows.api_key.find_login_item", return_value=None), \
+             patch("workflows.api_key.find_api_key_item", return_value=None):
             mock_create.return_value = {"id": "test_item_id", "vault": "Personal"}
-            result = workflow.acquire_credentials(opp, prep, "TEST_SECRET")
+            result = workflow.acquire_credentials(opp, prep, "TEST_SECRET", password="TEST_PASS")
 
             call = mock_create.call_args
             title = call.kwargs.get("title") or call[1].get("title")
@@ -285,3 +290,136 @@ class TestNamingConvention:
             )
             # Verify hostname is from the login_url/signup_url
             assert "claude.ai" in title, f"Should contain hostname, got: {title}"
+
+
+class TestAccountLoginPersistence:
+    """Phase 9F: Account login must be persisted to 1Password alongside API key."""
+
+    def test_acquire_credentials_creates_both_login_and_apikey(self, isolated_state, isolated_catalog):
+        """acquire_credentials must create both account login AND API key items."""
+        from workflows.api_key import APIKeyWorkflow
+
+        catalog = load_catalog()
+        provider = get_provider(catalog, "groq")
+        assert provider is not None
+
+        workflow = APIKeyWorkflow()
+        opp = {
+            "provider": "groq",
+            "name": provider.get("name", "Groq"),
+            "auth_type": "api_key",
+            "policy_status": "allowed",
+            "identity": "ident_test",
+            "identity_label": None,
+            "requirements": provider.get("identity_requirements", []),
+            "verification_requirements": provider.get("verification_requirements", []),
+            "free_quota": provider.get("free_tier", {}).get("quota", "Unknown"),
+            "omniroute_support": provider.get("omniroute_support", {}),
+            "downstream_count": 0,
+        }
+
+        prep = workflow.prepare(opp)
+
+        with patch("workflows.api_key.create_login") as mock_create, \
+             patch("workflows.api_key.find_login_item", return_value=None), \
+             patch("workflows.api_key.find_api_key_item", return_value=None):
+            mock_create.return_value = {"id": "test_item_id", "vault": "Personal"}
+            fake_api_key = "TEST_SECRET_API_KEY_123"
+            fake_password = "TEST_PASSWORD_456"
+            result = workflow.acquire_credentials(opp, prep, api_key=fake_api_key, password=fake_password)
+
+            # Should have created TWO items: account login + API key
+            assert mock_create.call_count == 2, (
+                f"Expected 2 create_login calls, got {mock_create.call_count}"
+            )
+
+            # Check that both titles were used
+            titles = [call.kwargs.get("title", call[1].get("title")) for call in mock_create.call_args_list]
+            assert "Groq" in titles, f"Account login item 'Groq' not in titles: {titles}"
+            assert any("OmniRoute" in t and t.endswith("Api Key") for t in titles), (
+                f"API key item not in titles: {titles}"
+            )
+
+            # Verify no secrets in return value
+            assert "password" not in result, "Password must not be in return value"
+            assert "api_key" not in result, "API key must not be in return value"
+            assert result["status"] == "success"
+
+    def test_acquire_credentials_reuses_existing_login(self, isolated_state, isolated_catalog):
+        """When account login already exists, it should be reused, not duplicated."""
+        from workflows.api_key import APIKeyWorkflow
+
+        catalog = load_catalog()
+        provider = get_provider(catalog, "groq")
+        workflow = APIKeyWorkflow()
+        opp = {
+            "provider": "groq",
+            "name": provider.get("name", "Groq"),
+            "auth_type": "api_key",
+            "policy_status": "allowed",
+            "identity": "ident_test",
+            "identity_label": None,
+            "requirements": [],
+            "verification_requirements": [],
+            "free_quota": "Unknown",
+            "omniroute_support": {},
+            "downstream_count": 0,
+        }
+        prep = workflow.prepare(opp)
+
+        # Mock find_login_item to return an existing item
+        existing_login = {"item_id": "existing_login_id", "vault": "Personal",
+                          "title": "Groq", "username": "test@example.com", "tags": []}
+        # Mock find_api_key_item to return None (no existing API key)
+        with patch("workflows.api_key.find_login_item", return_value=existing_login), \
+             patch("workflows.api_key.find_api_key_item", return_value=None), \
+             patch("workflows.api_key.create_login") as mock_create:
+            mock_create.return_value = {"id": "new_apikey_id", "vault": "Personal"}
+            result = workflow.acquire_credentials(opp, prep, api_key="TEST_KEY", password="TEST_PASS")
+
+            # Only ONE create_login call — for the API key, not the login
+            assert mock_create.call_count == 1, (
+                f"Should reuse existing login, only create API key. Got {mock_create.call_count} calls"
+            )
+            assert result["login_item_id"] == "existing_login_id"
+            assert result["onepassword_item_id"] == "new_apikey_id"
+
+    def test_acquire_credentials_reuses_existing_apikey(self, isolated_state, isolated_catalog):
+        """When API key already exists, it should be reused, not duplicated."""
+        from workflows.api_key import APIKeyWorkflow
+
+        catalog = load_catalog()
+        provider = get_provider(catalog, "groq")
+        workflow = APIKeyWorkflow()
+        opp = {
+            "provider": "groq",
+            "name": provider.get("name", "Groq"),
+            "auth_type": "api_key",
+            "policy_status": "allowed",
+            "identity": "ident_test",
+            "identity_label": None,
+            "requirements": [],
+            "verification_requirements": [],
+            "free_quota": "Unknown",
+            "omniroute_support": {},
+            "downstream_count": 0,
+        }
+        prep = workflow.prepare(opp)
+
+        existing_login = {"item_id": "existing_login_id", "vault": "Personal",
+                          "title": "Groq", "username": "test@example.com", "tags": []}
+        existing_apikey = {"item_id": "existing_apikey_id", "vault": "Personal",
+                           "title": "OmniRoute api.groq.com Api Key", "tags": []}
+        with patch("workflows.api_key.find_login_item", return_value=existing_login), \
+             patch("workflows.api_key.find_api_key_item", return_value=existing_apikey), \
+             patch("workflows.api_key.create_login") as mock_create:
+            result = workflow.acquire_credentials(opp, prep, api_key="TEST_KEY", password="TEST_PASS")
+
+            # NO create_login calls — both items reused
+            assert mock_create.call_count == 0, (
+                f"Should reuse both items. Got {mock_create.call_count} create calls"
+            )
+            assert result["login_item_id"] == "existing_login_id"
+            assert result["onepassword_item_id"] == "existing_apikey_id"
+            assert result["login_ref"]["reused"] is True
+            assert result["apikey_ref"]["reused"] is True

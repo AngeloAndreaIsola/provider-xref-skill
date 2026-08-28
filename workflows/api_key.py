@@ -25,7 +25,10 @@ try:
     from engine.catalog import load_catalog, get_provider
     from engine.registration import record_attempt, record_success, record_failure, record_partial
     from engine.utils import uuid_id
-    from adapters.onepassword import create_login, get_credential_value, build_credential_ref
+    from adapters.onepassword import (
+        create_login, get_credential_value, build_credential_ref,
+        account_login_title, api_key_title, find_login_item, find_api_key_item,
+    )
     from adapters.omniroute import connect_provider, verify_provider, generate_import_record
     from adapters.browser import api_key_flow
 except ImportError:
@@ -33,9 +36,14 @@ except ImportError:
     from ..engine.catalog import load_catalog, get_provider
     from ..engine.registration import record_attempt, record_success, record_failure, record_partial
     from ..engine.utils import uuid_id
-    from ..adapters.onepassword import create_login, get_credential_value, build_credential_ref
+    from ..adapters.onepassword import (
+        create_login, get_credential_value, build_credential_ref,
+        account_login_title, api_key_title, find_login_item, find_api_key_item,
+    )
     from ..adapters.omniroute import connect_provider, verify_provider, generate_import_record
     from ..adapters.browser import api_key_flow
+
+from urllib.parse import urlparse
 
 
 class APIKeyWorkflow:
@@ -45,7 +53,14 @@ class APIKeyWorkflow:
     Implements the ProviderWorkflow interface:
       can_register, prepare, register, verify, acquire_credentials,
       connect_omniroute, finalize
+
+    The ``requires_browser`` attribute signals to the executor that this
+    workflow needs a live browser session before execution can begin.
+    When ``requires_browser`` is False (e.g. for mocked test workflows),
+    the executor skips the browser-session verification.
     """
+
+    requires_browser = True
 
     def can_register(self, opportunity: dict) -> tuple[bool, str]:
         """Check if we can register for this provider."""
@@ -163,17 +178,29 @@ class APIKeyWorkflow:
         # to navigate, fill forms, extract API keys, etc.
         # For now, we return the action plan.
 
+        # Build structured checkpoint data for resumability (Phase 9H)
+        checkpoint_info = {
+            "provider": provider_id,
+            "identity": identity["value"] if identity else None,
+            "identity_id": identity["id"] if identity else None,
+            "workflow": "APIKeyWorkflow",
+            "step": "awaiting_human_interaction",
+            "checkpoint_type": "email_verification",
+        }
+
         return {
             "registration_id": reg_id,
             "mode": mode,
             "provider": provider["name"],
             "provider_id": provider_id,
             "identity_used": identity["value"] if identity else None,
-            "password": "[REDACTED]",  # Password is managed by the runtime, never exposed
+            # Password is transient — managed by the browser MCP runtime and
+            # stored directly to 1Password. Never persisted in Hermes state.
             "actions": actions["actions"],
             "steps_status": steps,
             "next_step": "open_provider",
             "human_checkpoint_required": True,  # Email verification, CAPTCHA
+            "checkpoint_info": checkpoint_info,
         }
 
     def verify(self, opportunity: dict, prep: dict) -> dict:
@@ -186,49 +213,161 @@ class APIKeyWorkflow:
             "next_action": "acquire_credentials",
         }
 
-    def acquire_credentials(self, opportunity: dict, prep: dict, api_key: str) -> dict:
+    def acquire_credentials(self, opportunity: dict, prep: dict,
+                          api_key: str | None = None,
+                          password: str | None = None) -> dict:
         """
-        Store the API key in 1Password.
+        Store account login AND API key in 1Password.
 
-        The api_key parameter contains the actual secret value,
-        retrieved from the browser during registration.
+        This is the core Fix #3: the account login must be persisted
+        alongside the API credential.
+
+        For API-key providers, two items are created:
+          1. Account login item (title: provider display name)
+             Contains: username/email, password
+          2. API key item (title: "OmniRoute [hostname] Api Key")
+             Contains: the API key as the credential field
+
+        Uses find_login_item / find_api_key_item to avoid duplicates.
+        Only references (credential_ref) are stored in Hermes state;
+        actual secrets go directly to 1Password.
         """
         provider_id = opportunity["provider"]
         provider = get_provider(load_catalog(), provider_id)
         identity = prep.get("identity")
 
-        # Create 1Password item
-        # Naming convention: "OmniRoute [hostname] Api Key"
-        from urllib.parse import urlparse
         login_url = provider.get("login_url") or provider.get("signup_url") or ""
         hostname = urlparse(login_url).netloc if login_url else provider_id
-        op_result = create_login(
-            title=f"OmniRoute {hostname} Api Key",
+        provider_name = provider.get("name", provider_id)
+
+        # Phase 9G: Security boundary — NO secrets in return value beyond
+        # credential_ref (op:// URI). The actual password and api_key go
+        # directly to 1Password via the op CLI.
+        # We return metadata only: item IDs, vault names, credential_ref paths.
+
+        vault = "Personal"
+        tags = ["provider-xref", "api-key", provider_id]
+
+        results = {}
+
+        # ── Step 1: Account login item ──────────────────────────────────
+        # Naming: account_login_title(provider_name) → e.g. "Groq"
+        login_ref = self._get_or_create_login(
+            provider_name=provider_name,
             username=identity["value"] if identity else None,
-            password=api_key,
+            password=password,
+            url=provider.get("login_url"),
+            vault=vault,
+            tags=tags + ["account-login"],
+        )
+        if "error" in login_ref:
+            return {"status": "failed", "error": login_ref["error"]}
+        results["login_ref"] = login_ref
+
+        # ── Step 2: API key item ────────────────────────────────────────
+        # Naming: api_key_title(hostname) → e.g. "OmniRoute api.groq.com Api Key"
+        apikey_ref = self._get_or_create_api_key(
+            hostname=hostname,
+            api_key=api_key,
+            username=identity["value"] if identity else None,
             url=provider.get("dashboard_url") or provider.get("login_url"),
-            vault="Personal",
-            tags=["provider-xref", "api-key", provider_id],
+            vault=vault,
+            tags=tags,
         )
+        if "error" in apikey_ref:
+            return {"status": "failed", "error": apikey_ref["error"]}
+        results["apikey_ref"] = apikey_ref
 
-        if isinstance(op_result, dict) and "error" in op_result:
+        # The primary credential_ref is the API key (used for OmniRoute)
+        results["credential_ref"] = apikey_ref["credential_ref"]
+        results["onepassword_item_id"] = apikey_ref["item_id"]
+        results["login_item_id"] = login_ref["item_id"]
+        results["vault"] = vault
+        results["status"] = "success"
+        return results
+
+    def _get_or_create_login(self, provider_name: str, username: str | None,
+                            password: str | None, url: str | None,
+                            vault: str, tags: list) -> dict:
+        """Get existing login item or create a new one. Never returns the password."""
+        existing = find_login_item(provider_name, vault=vault)
+        if existing:
             return {
-                "status": "failed",
-                "error": f"Failed to create 1Password item: {op_result['error']}",
+                "item_id": existing["item_id"],
+                "vault": existing["vault"],
+                "title": existing["title"],
+                "username": existing["username"],
+                "credential_ref": build_credential_ref(
+                    vault=existing["vault"],
+                    item_id=existing["item_id"],
+                    field="credential",
+                ),
+                "reused": True,
             }
-
-        item_id = op_result.get("id")
-        credential_ref = build_credential_ref(
-            vault=op_result.get("vault", "Personal"),
-            item_id=item_id,
-            field="credential",
+        if not password:
+            return {"error": "No password available and no existing login item to reuse"}
+        result = create_login(
+            title=account_login_title(provider_name),
+            username=username,
+            password=password,
+            url=url,
+            vault=vault,
+            tags=tags,
         )
-
+        if isinstance(result, dict) and "error" in result:
+            return {"error": result["error"]}
+        item_id = result.get("id")
+        item_vault = result.get("vault", vault)
         return {
-            "status": "success",
-            "credential_ref": credential_ref,
-            "onepassword_item_id": item_id,
-            "vault": op_result.get("vault", "Personal"),
+            "item_id": item_id,
+            "vault": item_vault,
+            "title": account_login_title(provider_name),
+            "username": username,
+            "credential_ref": build_credential_ref(
+                vault=item_vault, item_id=item_id, field="credential",
+            ),
+            "reused": False,
+        }
+
+    def _get_or_create_api_key(self, hostname: str, api_key: str | None,
+                              username: str | None, url: str | None,
+                              vault: str, tags: list) -> dict:
+        """Get existing API key item or create a new one. Never returns the API key."""
+        existing = find_api_key_item(hostname, vault=vault)
+        if existing:
+            return {
+                "item_id": existing["item_id"],
+                "vault": existing["vault"],
+                "title": existing["title"],
+                "credential_ref": build_credential_ref(
+                    vault=existing["vault"],
+                    item_id=existing["item_id"],
+                    field="credential",
+                ),
+                "reused": True,
+            }
+        if not api_key:
+            return {"error": "No API key available and no existing API key item to reuse"}
+        result = create_login(
+            title=api_key_title(hostname),
+            username=username,
+            password=api_key,
+            url=url,
+            vault=vault,
+            tags=tags,
+        )
+        if isinstance(result, dict) and "error" in result:
+            return {"error": result["error"]}
+        item_id = result.get("id")
+        item_vault = result.get("vault", vault)
+        return {
+            "item_id": item_id,
+            "vault": item_vault,
+            "title": api_key_title(hostname),
+            "credential_ref": build_credential_ref(
+                vault=item_vault, item_id=item_id, field="credential",
+            ),
+            "reused": False,
         }
 
     def connect_omniroute(self, opportunity: dict, prep: dict,

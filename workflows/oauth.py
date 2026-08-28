@@ -45,7 +45,12 @@ class OAuthWorkflow:
     The browser performs the actual OAuth dance.  Hermes orchestrates
     the steps and pauses at human checkpoints (consent screen, CAPTCHA,
     phone verification, ToS).
+
+    The ``requires_browser`` attribute signals to the executor that this
+    workflow needs a live browser session before execution can begin.
     """
+
+    requires_browser = True
 
     def can_register(self, opportunity: dict) -> tuple[bool, str]:
         """Check if we can register for this provider via OAuth."""
@@ -143,6 +148,16 @@ class OAuthWorkflow:
         for action in actions["actions"]:
             steps[action["step"]] = "pending"
 
+        # Build structured checkpoint data for resumability (Phase 9H)
+        checkpoint_info = {
+            "provider": provider_id,
+            "identity": identity["value"] if identity else None,
+            "identity_id": identity["id"] if identity else None,
+            "workflow": "OAuthWorkflow",
+            "step": "awaiting_human_interaction",
+            "checkpoint_type": "oauth_consent",
+        }
+
         return {
             "registration_id": reg_id,
             "mode": mode,
@@ -152,7 +167,8 @@ class OAuthWorkflow:
             "actions": actions["actions"],
             "steps_status": steps,
             "next_step": "open_provider",
-            "human_checkpoint_required": True,  # Consent screen, CAPTCHA, phone verification
+            "human_checkpoint_required": True,  # Consent screen, CAPTCHA, phone verification, MFA, passkey
+            "checkpoint_info": checkpoint_info,
         }
 
     def verify(self, opportunity: dict, prep: dict) -> dict:

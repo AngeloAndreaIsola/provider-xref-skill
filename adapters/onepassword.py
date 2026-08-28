@@ -50,6 +50,12 @@ def detect_auth_backend() -> dict:
     is_service_account = bool(service_token)
 
     # Run `op whoami` to detect current auth state
+    # Note: `op whoami` may fail in subprocess contexts even when the desktop
+    # app integration is active (macOS keychain isn't accessible to subprocess).
+    # Fall back to `op vault list` which does work via desktop app integration.
+    whoami_output = ""
+    signed_in = False
+
     try:
         result = subprocess.run(
             ["op", "whoami"],
@@ -59,7 +65,20 @@ def detect_auth_backend() -> dict:
         whoami_output = result.stdout.strip() if signed_in else ""
     except Exception:
         signed_in = False
-        whoami_output = ""
+
+    # Fallback: try `op vault list` if whoami failed
+    # (desktop app integration works for vault list but not whoami in subprocess)
+    if not signed_in and not is_service_account:
+        try:
+            vault_result = subprocess.run(
+                ["op", "vault", "list"],
+                capture_output=True, text=True, timeout=10
+            )
+            if vault_result.returncode == 0 and "Private" in vault_result.stdout:
+                signed_in = True
+                whoami_output = "signed_in via desktop CLI integration"
+        except Exception:
+            pass
 
     # Classify backend
     if is_service_account:

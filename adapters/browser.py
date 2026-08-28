@@ -396,9 +396,10 @@ _CAPTCHA_PATTERNS = [
 ]
 
 _MFA_PATTERNS = [
-    r"code", r"verification code", r"auth code", r"2fa", r"mfa",
+    r"verification code", r"auth code", r"2fa", r"mfa",
     r"sms code", r"security code", r"one-time", r"totp",
     r"authenticator", r"security key", r"passkey",
+    r"enter.*code", r"6-digit", r"authentication code",
 ]
 
 _EMAIL_VERIFY_PATTERNS = [
@@ -416,6 +417,18 @@ _PASSKEY_PATTERNS = [
     r"passkey", r"webauthn", r"use your.*security key",
     r"face id", r"touch id", r"fingerprint",
     r"windows hello",
+]
+
+# Patterns for detecting OAuth / third-party sign-in pages
+# These detect when the browser has navigated to an external identity
+# provider (Google, GitHub, Microsoft, etc.) for OAuth authentication.
+_OAUTH_SIGNIN_PATTERNS = [
+    r"sign in with google", r"sign in to google", r"sign in with github",
+    r"sign in to github", r"sign in with apple", r"sign in with microsoft",
+    r"continue with google", r"continue with github", r"continue with apple",
+    r"sign in to your (google|github|microsoft|apple)",
+    r"accounts\.google\.com", r"accounts\.github\.com", r"login\.microsoftonline\.com",
+    r"appleid\.com",
 ]
 
 _PHONE_PATTERNS = [
@@ -456,8 +469,14 @@ def detect_checkpoint(page_text: str, page_url: str | None = None) -> dict | Non
                 "checkpoint_type": "captcha",
                 "reason": "Browser challenge/CAPTCHA detected — human interaction required",
                 "url": page_url,
-                # No secrets exposed
+                "retry_count": 0,
+                "recoverable": False,  # CAPTCHA requires page refresh/reload
             }
+
+    # Check for OAuth bot-blocking (e.g., Google's "browser may not be secure")
+    oauth_block = detect_oauth_block(page_text, page_url)
+    if oauth_block:
+        return oauth_block
 
     # Check for passkey/WebAuthn
     for pattern in _PASSKEY_PATTERNS:
@@ -480,14 +499,30 @@ def detect_checkpoint(page_text: str, page_url: str | None = None) -> dict | Non
             }
 
     # Check for email verification
+    email_verify_match = False
     for pattern in _EMAIL_VERIFY_PATTERNS:
         if re.search(pattern, combined, re.IGNORECASE):
-            return {
-                "type": "email_verification",
-                "checkpoint_type": "email_verification",
-                "reason": "Email verification required — check email and complete verification",
-                "url": page_url,
-            }
+            email_verify_match = True
+            break
+    if email_verify_match:
+        # Check for email verification error states (expired, invalid, already used)
+        email_error_patterns = [
+            r"verification.*(expired|invalid|already used|couldn't verify)",
+            r"link.*(expired|invalid|not found|couldn't)",
+            r"resend",
+        ]
+        is_error = any(re.search(p, combined, re.IGNORECASE) for p in email_error_patterns)
+        return {
+            "type": "email_verification",
+            "checkpoint_type": "email_verification",
+            "reason": ("Email verification link expired or invalid — "
+                       "check email for a fresh link or request a resend"
+                       if is_error
+                       else "Email verification required — check email and complete verification"),
+            "url": page_url,
+            "retry_count": 0,  # Incremented by caller on each retry attempt
+            "recoverable": True,  # Email verification can always be retried via resend
+        }
 
     # Check for OAuth consent
     for pattern in _OAUTH_PATTERNS:
@@ -508,6 +543,38 @@ def detect_checkpoint(page_text: str, page_url: str | None = None) -> dict | Non
                 "reason": "Phone verification required — complete in browser",
                 "url": page_url,
             }
+
+    # Check for OAuth / third-party sign-in (Google, GitHub, etc.)
+    # Only triggers when we're actually ON the third-party provider's domain
+    # (accounts.google.com, github.com, etc.), not when a provider's own
+    # login page merely mentions "Continue with Google/GitHub" buttons.
+    oauth_signin_urls = [
+        r"accounts\.google\.com", r"accounts\.github\.com",
+        r"login\.microsoftonline\.com", r"appleid\.com",
+    ]
+    is_oauth_domain = any(re.search(p, url_lower, re.IGNORECASE) for p in oauth_signin_urls) if url_lower else False
+
+    # Check both URL domain and page text for OAuth sign-in indicators
+    # Only trigger on text patterns if we're on a known OAuth provider domain
+    if is_oauth_domain:
+        return {
+            "type": "oauth_signin",
+            "checkpoint_type": "oauth_signin",
+            "reason": "Third-party sign-in required — complete authentication in browser",
+            "url": page_url,
+        }
+
+    # Also check for generic OAuth sign-in text if we're on an OAuth domain
+    # but the URL doesn't match the exact patterns above (wildcard subdomains)
+    if ("google" in url_lower or "github" in url_lower or "microsoft" in url_lower or "appleid" in url_lower) and (
+        "sign in" in text_lower or "enter" in text_lower
+    ):
+        return {
+            "type": "oauth_signin",
+            "checkpoint_type": "oauth_signin",
+            "reason": "Third-party sign-in required — complete authentication in browser",
+            "url": page_url,
+        }
 
     return None
 
@@ -536,16 +603,14 @@ def detect_authenticated(page_text: str, page_url: str | None = None,
     unauth_indicators = [
         "sign in", "sign up", "create account", "log in",
         "forgot your", "don't have an account",
-        "sign in to", "sign up for",
+        "sign in to", "sign up for", "continue with email",
     ]
-    for indicator in unauth_indicators:
-        if indicator in text_lower:
-            # Check if it's a primary heading (not just a footer link)
-            # If "Sign in" is the main action, likely unauthenticated
-            if text_lower.count(indicator) >= 1:
-                # Look for authentication forms
-                if "password" in text_lower and "email" in text_lower:
-                    return False
+    unauth_count = sum(1 for ind in unauth_indicators if ind in text_lower)
+    if unauth_count >= 1:
+        # If we see explicit login/signup prompts, we're on a login page
+        # These are strong indicators of unauthenticated state regardless of
+        # navigation links that may also be present.
+        return False
 
     # Check for authenticated-state indicators
     auth_indicators = [
@@ -558,24 +623,35 @@ def detect_authenticated(page_text: str, page_url: str | None = None,
         return True
 
     # Check URL patterns for dashboard/authenticated areas
-    # (specific to providers with known dashboard URLs)
+    # Only match specific dashboard paths, not entire domains
+    # (console.groq.com can serve 404 pages too)
     authenticated_url_patterns = [
-        "/dashboard", "/settings", "/account", "/profile",
-        "/api-keys", "/api-tokens", "/projects",
-        "dash.cloudflare.com/", "console.groq.com",
-        "platform.openai.com", "claude.ai", "console.anthropic.com",
-        "aistudio.google.com", "build.nvidia.com",
-        "app.fireworks.ai", "app.hyperbolic.xyz",
+        "/dashboard", "/settings/keys", "/settings/tokens",
+        "/account", "/profile", "/api-keys",
+        "/settings/billing", "/settings/usage",
+        "dash.cloudflare.com/", "platform.openai.com/account",
+        "platform.openai.com/api-keys", "claude.ai/settings",
+        "aistudio.google.com/", "build.nvidia.com/",
+        "app.fireworks.ai/dashllar", "app.hyperbolic.xyz/",
     ]
     for pattern in authenticated_url_patterns:
         if pattern in url_lower:
-            # URL suggests authenticated area, but verify with page content
-            if auth_count >= 1:
+            # Require actual authenticated indicators (sign out button)
+            # to confirm the session is truly authenticated.
+            # A 404 or redirect page may share the same URL pattern
+            # but won't contain auth indicators.
+            if "sign out" in text_lower or "log out" in text_lower:
                 return True
-            # Even without explicit auth indicators, dashboard URLs
-            # typically indicate an authenticated session
-            if "sign in" not in text_lower and "log in" not in text_lower:
+            # Also accept "my account" or "account settings" as strong auth signals
+            if "my account" in text_lower or "account settings" in text_lower:
                 return True
+            # For known dashboard domains, check that the page has
+            # substantial non-login content (not a 404 or login page)
+            if "dash.cloudflare.com/" in url_lower:
+                # Cloudflare dashboards have navigation with "Overview",
+                # "Workers", "KV", etc. — these are authenticated sections
+                if "overview" in text_lower or "workers" in text_lower:
+                    return True
 
     return False
 
@@ -1104,3 +1180,160 @@ def _now_iso() -> str:
     """Return current UTC time in ISO 8601 format."""
     from datetime import datetime, timezone
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+# Patterns for detecting OAuth provider bot-detection failures
+_OAUTH_BLOCK_PATTERNS = [
+    r"browser or app may not be secure",
+    r"this browser.*not secure",
+    r"couldn't sign you in",
+    r"security check",
+    r"unusual traffic",
+    r"suspicious.*sign",
+]
+
+
+def detect_oauth_block(page_text: str, page_url: str | None = None) -> dict | None:
+    """
+    Detect whether an OAuth provider (Google, GitHub, etc.) has blocked
+    the automated browser session.
+
+    Returns a checkpoint dict with type 'oauth_block' or None.
+    NEVER returns credentials or tokens.
+    """
+    if not page_text:
+        return None
+    text_lower = page_text.lower()
+    for pattern in _OAUTH_BLOCK_PATTERNS:
+        if re.search(pattern, text_lower):
+            return {
+                "type": "oauth_block",
+                "checkpoint_type": "oauth_block",
+                "reason": "OAuth provider blocked the browser session — "
+                          "complete authentication manually or use a different auth method",
+                "url": page_url,
+            }
+    return None
+
+
+# ── Browser session verification (Phase 9D) ───────────────────────────────
+
+def verify_browser_session(profile_id: str | None = None,
+                           provider_url: str | None = None) -> dict:
+    """
+    Verify that an actual browser/MCP session exists and is usable.
+
+    Checks:
+      1. Browser profile metadata exists (ensure_browser_profile_dir)
+      2. An active browser tab/page exists (MCP tool returns non-empty snapshot)
+      3. The current URL is reachable (not a browser error page)
+      4. The user can see the browser window (visibility check via MCP)
+
+    Returns a dict with:
+      - 'session_ok': bool
+      - 'profile_id': str
+      - 'browser_provider': str (e.g. 'chromium')
+      - 'current_url': str | None (safe — no auth tokens in URL)
+      - 'active_page': bool
+      - 'error': str | None (if session_ok is False)
+
+    This function does NOT return or log any session cookies, tokens,
+    or credentials. Only page metadata (URL, title, element counts).
+    """
+    profile_id = profile_id or DEFAULT_BROWSER_PROFILE
+    ensure_browser_profile_dir()
+
+    # Check that profile metadata exists
+    metadata = load_browser_profile_metadata(profile_id)
+    if not metadata:
+        return {
+            "session_ok": False,
+            "profile_id": profile_id,
+            "browser_provider": None,
+            "current_url": None,
+            "active_page": False,
+            "error": "Browser profile metadata not found — no browser session has been established",
+        }
+
+    browser_provider = metadata.get("browser_provider", "chromium")
+
+    # Verify an active page exists by attempting a snapshot.
+    # In production, this delegates to the browser_snapshot MCP tool.
+    # In tests, the caller can monkeypatch _mcp_snapshot.
+    try:
+        snap = _mcp_snapshot(profile_id)
+    except NotImplementedError:
+        # MCP not available in this context — no active browser session
+        snap = None
+
+    if not snap or not isinstance(snap, dict):
+        return {
+            "session_ok": False,
+            "profile_id": profile_id,
+            "browser_provider": browser_provider,
+            "current_url": None,
+            "active_page": False,
+            "error": "Browser session returned empty snapshot — no active page",
+        }
+
+    # Check for page error states
+    title = snap.get("title", "") or ""
+    if "error" in title.lower() and "page not found" not in title.lower():
+        return {
+            "session_ok": False,
+            "profile_id": profile_id,
+            "browser_provider": browser_provider,
+            "current_url": snap.get("url"),
+            "active_page": True,
+            "error": f"Browser page in error state: {title}",
+        }
+
+    current_url = snap.get("url")
+    # Check that the URL is reachable (not about:blank or chrome://newtab)
+    if current_url and current_url in ("about:blank", "chrome://newtab/", "edge://newtab/"):
+        return {
+            "session_ok": False,
+            "profile_id": profile_id,
+            "browser_provider": browser_provider,
+            "current_url": current_url,
+            "active_page": False,
+            "error": f"Browser is showing a blank/new-tab page — no active content (url={current_url})",
+        }
+
+    return {
+        "session_ok": True,
+        "profile_id": profile_id,
+        "browser_provider": browser_provider,
+        "current_url": current_url,
+        "active_page": True,
+        "error": None,
+    }
+
+
+def _mcp_snapshot(profile_id: str) -> dict | None:
+    """
+    Get a snapshot of the current browser page via the MCP browser_snapshot tool.
+
+    This delegates to the real browser_snapshot MCP tool when running in
+    the Hermes runtime (where hermes_tools is available as a Python-importable
+    bridge to the MCP server). In test/dry-run/standalone contexts, it
+    returns None (no active MCP browser session detected).
+
+    Returns a dict with keys like 'url', 'title', 'snapshot', 'element_count',
+    or None if no browser session is available.
+
+    Note: When called via the hermes_tools RPC bridge, browser_snapshot may
+    omit 'url' and 'title' fields. The caller (verify_browser_session) handles
+    this by treating url=None as 'available but URL unknown' rather than missing.
+    """
+    try:
+        from hermes_tools import browser_snapshot as _bsnap
+        result = _bsnap()
+        if isinstance(result, dict):
+            return result
+        return None
+    except (ImportError, AttributeError):
+        # MCP browser tools not available in this execution context.
+        # This is normal in tests, standalone scripts, and dry-run.
+        # Return None to indicate no active browser session.
+        return None

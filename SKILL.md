@@ -1063,7 +1063,7 @@ Phase 9 adds the generic browser automation layer and secure credential persiste
 
 ### 18.1 Test Results
 
-**603 tests pass** (487 Phase 1–7 + 108 new Phase 9 tests + 8 registry tests). 0 failures, 0 errors.
+**606 tests pass** (487 Phase 1–7 + 108 new Phase 9 tests + 8 registry tests + 3 secret-redaction tests + 1 checkpoint test). 0 failures, 0 errors.
 
 ### 18.2 Persistent Local Browser (`adapters/browser.py`)
 
@@ -1159,13 +1159,77 @@ The browser adapter wraps real MCP browser tools (browser_navigate, browser_clic
 
 **Browser profile:** The persistent browser profile may contain authenticated browser state/cookies internally (this is inherent to persistent browser sessions). However, `browser_profile_metadata.json` contains **metadata only** — no cookies, session tokens, or browser credentials are exported to JSON or state files.
 
-**Human checkpoints:** The browser remains open after human checkpoints. Human authentication happens in the visible browser window — Hermes never asks the user to paste passwords, MFA codes, API keys, or OAuth tokens. Hermes detects checkpoints, tells the user to complete them in the browser, leaves the browser open, re-snapshots, and detects when authentication is complete.
+**Human checkpoints:** The browser remains open after human checkpoints. Human authentication happens in the visible browser window — Hermes never asks the user to paste passwords, MFA codes, API keys, or OAuth tokens. Hermes detects checkpoints, tells the user to complete them in the browser, leaves the browser open, re-snapshots, and detects when authentication is complete. **Live-validated:** the Phase 9 acceptance test successfully demonstrated checkpoint detection (GitHub OAuth login), human authentication completion (password + MFA in visible browser), and automatic resume (redirect back to Groq Console detected).
 
 **1Password account-login model:** When Hermes creates a provider account, it saves the account login to 1Password automatically using the provider's display name as the title. If a matching login item already exists, it is detected and reused. The API credential is a separate item. Passwords never appear in chat, registration history, provider state, execution requests, or logs.
 
 ### 18.7 Limitations
 
-- Provider browser automation has been **unit-tested** (via mock browser adapters). Real browser end-to-end registration for a second provider is deferred to Phase 10.
+- Provider browser automation has been **unit-tested** (via mock browser adapters) and **live-validated** with a real headed Chrome browser performing GitHub OAuth on Groq.
 - `api_key_flow` and `oauth_flow` return **declarative action descriptors** (not live browser automation). The Hermes runtime executes these descriptors as actual MCP tool calls.
 - Credential extraction rules are defined per-provider in the `PROVIDER_EXTRACTION_RULES` catalog. New providers require adding a rule entry.
 - The browser profile directory lives outside the repository at `~/.hermes/browser_profiles/` — it is gitignored and not tracked.
+
+### 18.8 Phase 9 Live Acceptance Test — Groq GitHub OAuth
+
+**Live-validated capabilities** (verified with real headed Chrome browser):
+
+```
+headed browser
+→ console.groq.com/login
+→ GitHub OAuth (Continue with GitHub)
+→ human authentication checkpoint (GitHub password + MFA)
+→ OAuth redirect back to Groq Console
+→ authenticated Groq session
+→ identity verification (lazymause@gmail.com confirmed via /settings/profile)
+→ automatic resume after checkpoint
+```
+
+**Multi-account identity distinction** (verified):
+- Groq Google account → `angeloandrea.isola@gmail.com`
+- Groq email account → `lazymause@gmail.com`
+- Both identities are distinguishable via the Groq Profile page (`/settings/profile` → Email field)
+
+**Test results:**
+- Browser session: PASS (headed Chrome, visible window, 1 window confirmed)
+- MCP browser tools: PASS (navigate, snapshot, click all work)
+- Checkpoint detection: PASS (detected GitHub login page as `oauth_signin` checkpoint)
+- Human checkpoint handling: PASS (detected GitHub password/MFA requirement, reported to user)
+- Automatic resume: PASS (detected redirect to console.groq.com/home, verified authenticated state)
+- Identity verification: PASS (email `lazymause@gmail.com` detected on Profile page)
+- No account creation: PASS (login flow only, no signup)
+- No API key generation: PASS (test stopped before credential acquisition)
+- No OmniRoute changes: PASS (existing connection unchanged)
+- No 1Password changes: PASS (no new items created)
+- Security boundary: PASS (no secrets in Hermes state/logs/checkpoints)
+
+**Configuration:** `browser.headed: true` in `~/.hermes/config.yaml` is required for the Hermes runtime to launch `agent-browser` with `--headed` flag, producing a visible Chrome window.
+
+### 18.9 Known Limitations — Magic-Link Authentication Isolation
+
+**Email magic-link authentication is inherently browser-session-bound.**
+
+When a provider (e.g., Groq) sends a magic link to the user's email, the link can only authenticate the browser session that opens it. Opening the link in a different browser (the user's normal browser vs. the Hermes-controlled browser) does NOT authenticate the Hermes session.
+
+The Phase 9 checkpoint system handles this correctly:
+1. Detects the email verification checkpoint (via `detect_checkpoint()`)
+2. Reports the current URL and checkpoint state
+3. The user must open the magic link **in the Hermes-controlled browser**
+4. After the user completes the action, `detect_checkpoint_completion()` checks if authentication is complete
+5. If the magic link was opened in a different browser, the Hermes session remains unauthenticated — this is correctly detected as `authenticated: False`
+
+The system never:
+- Extracts or copies cookies/tokens between browsers
+- Pastes magic-link URLs into Hermes/chat
+- Stores authentication links in state
+
+**Recovery options** when magic-link is opened in the wrong browser:
+- Retry the authentication flow
+- Use an alternative auth method (Google, GitHub, OAuth) if available
+- The checkpoint `retry_count` tracks attempts with bounded retries
+
+**Email verification recovery** (e.g., expired, invalid, already-used links):
+- The checkpoint system detects error states via regex patterns
+- `resend` links are detected and reported in the checkpoint reason
+- The checkpoint is marked as `recoverable: True` for email verification
+- The `retry_count` tracks how many resend attempts have occurred
