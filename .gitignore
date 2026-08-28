@@ -9,3 +9,6 @@ __pycache__/
 
 # Temp files
 *.tmp
+
+# Local review status metadata (Phase 14) — not provider state
+data/review_state.json
