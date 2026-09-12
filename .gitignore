@@ -12,3 +12,6 @@ __pycache__/
 
 # Local review status metadata (Phase 14) — not provider state
 data/review_state.json
+
+# Packaging build artifacts
+provider_xref.egg-info/

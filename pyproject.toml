@@ -1,0 +1,20 @@
+[project]
+name = "provider-xref"
+version = "0.1.0"
+description = "Deterministic provider-state, identity, capability, policy, reconciliation, and planning layer."
+readme = "SKILL.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+provider-xref = "pxref_cli:main"
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["pxref_cli"]
+
+[tool.setuptools.package-data]
+# no package data needed
